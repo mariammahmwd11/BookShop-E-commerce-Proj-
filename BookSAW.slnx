@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="BookSAW.business logic/BookSAW.business logic.csproj" Id="87040e47-57f8-4966-8db7-decd3647ba5e" />
+  <Project Path="BookSAW.DataAccess/BookSAW.DataAccess.csproj" />
+  <Project Path="BookSAW.Models/BookSAW.Models.csproj" />
+  <Project Path="BookSAW.Utility/BookSAW.Utility.csproj" />
+  <Project Path="BookSAW_MVC/BookSAW_MVC.csproj" />
+</Solution>

@@ -1,0 +1,254 @@
+﻿@model BookSAW.BL.DTO.LoginDTO;
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_TemLayout";
+}
+<style>
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    :root {
+        --accent: #C5A992;
+        --dark: #2f2f2f;
+        --light-bg: #F3F2EC;
+        --muted: #757575;
+        --border: #E0E0E0;
+        --error: #c0392b;
+    }
+
+    .auth-page-wrapper {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        background-color: var(--light-bg);
+    }
+
+    .auth-wrapper {
+        display: flex;
+        width: 100%;
+        max-width: 900px;
+        min-height: 520px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+        background: #fff;
+    }
+
+    .auth-left {
+        width: 42%;
+        background: #EDEBE4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 36px;
+        text-align: center;
+    }
+
+        .auth-left .logo {
+            font-family: 'Prata', serif;
+            font-size: 2rem;
+            color: var(--dark);
+            letter-spacing: 0.04em;
+            margin-bottom: 32px;
+        }
+
+            .auth-left .logo span {
+                color: var(--accent);
+            }
+
+        .auth-left .tagline {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        .auth-left .deco-line {
+            width: 40px;
+            height: 2px;
+            background: var(--accent);
+            margin: 24px auto;
+        }
+
+    .auth-right {
+        flex: 1;
+        padding: 48px 48px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+        .auth-right h2 {
+            font-family: 'Prata', serif;
+            font-size: 1.8rem;
+            color: var(--dark);
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .auth-right .subtitle {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 28px;
+        }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dark);
+        margin-bottom: 8px;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid var(--border);
+        background: #fafaf8;
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.9rem;
+        color: var(--dark);
+        border-radius: 0;
+        transition: border-color 0.2s;
+        outline: none;
+    }
+
+    input:focus {
+        border-color: var(--accent);
+        background: #fff;
+    }
+
+    .field-error {
+        color: var(--error);
+        font-size: 0.78rem;
+        margin-top: 5px;
+    }
+
+    .validation-summary {
+        background: #fdf0ef;
+        border-left: 3px solid var(--error);
+        padding: 10px 14px;
+        margin-bottom: 20px;
+        font-size: 0.82rem;
+        color: var(--error);
+    }
+
+    .btn-auth {
+        width: 100%;
+        padding: 14px;
+        background: var(--dark);
+        color: #fff;
+        border: none;
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        cursor: pointer;
+        transition: background 0.25s;
+        margin-top: 8px;
+    }
+
+        .btn-auth:hover {
+            background: var(--accent);
+        }
+
+    .auth-footer {
+        margin-top: 20px;
+        font-size: 0.82rem;
+        color: var(--muted);
+        text-align: center;
+    }
+
+        .auth-footer a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+            .auth-footer a:hover {
+                color: var(--dark);
+            }
+
+    @@media (max-width: 680px) {
+        .auth-left {
+            display: none;
+        }
+
+        .auth-right {
+            padding: 40px 28px;
+        }
+
+        .auth-wrapper {
+            max-width: 100%;
+            min-height: 100vh;
+        }
+    }
+</style>
+
+<div class="auth-page-wrapper">
+    <div class="auth-wrapper">
+
+        <div class="auth-left">
+            <div class="logo">BOOK<span>SAW</span></div>
+            <div class="deco-line"></div>
+            <p class="tagline">Your next great read<br />is waiting for you.</p>
+        </div>
+
+        <div class="auth-right">
+            <h2>Welcome back</h2>
+            <p class="subtitle">Sign in to your account to continue</p>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="validation-summary">
+                    @Html.ValidationSummary(false)
+                </div>
+            }
+
+            <form asp-area="User" asp-controller="Account" asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label asp-for="Email">Email Address</label>
+                    <input asp-for="Email" type="email" placeholder="you@example.com" autocomplete="email" />
+                    <span asp-validation-for="Email" class="field-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Password">Password</label>
+                    <input asp-for="Password" type="password" placeholder="••••••••" autocomplete="current-password" />
+                    <span asp-validation-for="Password" class="field-error"></span>
+                </div>
+                <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+                    <input asp-for="RememberMe" type="checkbox" style="width:auto; accent-color: var(--accent);" />
+                    <label asp-for="RememberMe" style="margin:0; text-transform:none; font-size:0.85rem;">Remember me</label>
+                </div>
+
+                <button type="submit" class="btn-auth">Sign In</button>
+            </form>
+
+            <div class="auth-footer">
+                Don't have an account?
+                <a asp-action="Register" asp-controller="Account">Create one</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
