@@ -7,12 +7,11 @@ namespace BookSAW.business_logic.IServices
 {
     public interface ICategoryService
     {
-        string GetCategoryById(int id);
-        string GetCategoryByName(string categoryName);
+        CategoryDTO GetCategoryById(int id);
         List<CategoryDTO> GetCategories();
-        Category AddCategory(CategoryDTO categoryDTO);
-        Category UpdateCategory(CategoryDTO categoryDTO);
-        Category DeleteCategory(int id);
+        void AddCategory(CategoryDTO categoryDTO);
+        void UpdateCategory(CategoryDTO categoryDTO);
+        bool DeleteCategory(int id);
 
    
 

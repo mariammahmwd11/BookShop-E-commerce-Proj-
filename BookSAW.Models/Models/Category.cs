@@ -11,9 +11,10 @@ namespace BookSAW.Models.Models
         [Required]
         [MaxLength(200)]
         public string Name { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         [Range(1,100)]
-        public int DisplayOrder { get; set; }
+        public int? DisplayOrder { get; set; }
+        public string? ImageUrl { get; set; }
         public List<Book>? Books { get; set; }
 
     }

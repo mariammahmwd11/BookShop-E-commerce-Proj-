@@ -12,10 +12,9 @@
         --light-bg: #F3F2EC;
         --muted: #757575;
         --border: #E0E0E0;
-        --error: #c0392b;
     }
 
-    .admin-page-wrapper {
+    .admin-wrapper {
         padding: 48px 40px;
         background-color: var(--light-bg);
         min-height: 80vh;
@@ -38,8 +37,16 @@
             margin: 0;
         }
 
+    .page-header-meta {
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 4px;
+        letter-spacing: 0.03em;
+    }
+
     .btn-add {
-        padding: 12px 28px;
+        padding: 10px 22px;
         background: var(--dark);
         color: #fff;
         border: none;
@@ -47,11 +54,14 @@
         font-size: 0.78rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.08em;
         cursor: pointer;
         transition: background 0.25s;
+        border-radius: 4px;
         text-decoration: none;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
     }
 
         .btn-add:hover {
@@ -59,9 +69,46 @@
             color: #fff;
         }
 
+    /* Toast */
+    .toast {
+        position: fixed;
+        top: 28px;
+        right: 28px;
+        z-index: 9999;
+        padding: 14px 22px;
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #fff;
+        border-radius: 2px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        pointer-events: none;
+    }
+
+        .toast.success {
+            background: #2f2f2f;
+            border-left: 4px solid #C5A992;
+        }
+
+        .toast.error {
+            background: #c0392b;
+            border-left: 4px solid #922b21;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    /* Table */
     .table-card {
         background: #fff;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        border-radius: 6px;
+        overflow: hidden;
     }
 
     table {
@@ -74,14 +121,24 @@
     }
 
         thead th {
-            padding: 14px 20px;
-            font-size: 0.72rem;
+            padding: 13px 20px;
+            font-size: 0.68rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--dark);
+            letter-spacing: 0.12em;
+            color: var(--muted);
             text-align: left;
+            white-space: nowrap;
         }
+
+            thead th:first-child {
+                padding-left: 24px;
+            }
+
+            thead th:last-child {
+                padding-right: 24px;
+                text-align: right;
+            }
 
     tbody tr {
         border-bottom: 1px solid var(--border);
@@ -103,238 +160,245 @@
         vertical-align: middle;
     }
 
-    .td-id {
+        tbody td:first-child {
+            padding-left: 24px;
+        }
+
+        tbody td:last-child {
+            padding-right: 24px;
+        }
+
+    .col-id {
+        width: 72px;
+    }
+
+    .col-photo {
+        width: 80px;
+    }
+
+    .col-name {
+        min-width: 160px;
+    }
+
+    .col-desc {
+        min-width: 200px;
+    }
+
+    .col-actions {
+        width: 200px;
+        text-align: right;
+    }
+
+    .id-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #F3F2EC;
+        border: 1px solid #E0E0E0;
         color: var(--muted);
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 4px 9px;
+        border-radius: 3px;
+        min-width: 36px;
+    }
+
+    .cat-thumb {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid var(--border);
+        display: block;
+    }
+
+    .cat-thumb-placeholder {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        background: #EDEBE4;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .cat-thumb-placeholder svg {
+            width: 20px;
+            height: 20px;
+            opacity: 0.35;
+        }
+
+    .cat-name {
+        font-family: 'Raleway', sans-serif;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .cat-desc {
+        font-size: 0.85rem;
+        color: var(--muted);
+        line-height: 1.5;
+        max-width: 340px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .cat-desc-empty {
         font-size: 0.82rem;
-        width: 60px;
+        color: #bbb;
+        font-style: italic;
     }
 
     .actions {
         display: flex;
-        gap: 10px;
+        gap: 8px;
         justify-content: flex-end;
+        align-items: center;
+    }
+
+    .btn-edit, .btn-delete {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.73rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        cursor: pointer;
+        border-radius: 4px;
+        white-space: nowrap;
+        transition: all 0.18s;
+        text-decoration: none;
     }
 
     .btn-edit {
-        padding: 7px 18px;
         background: transparent;
         border: 1px solid var(--dark);
         color: var(--dark);
-        font-family: 'Raleway', sans-serif;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        cursor: pointer;
-        transition: all 0.2s;
-        text-decoration: none;
-        display: inline-block;
     }
 
         .btn-edit:hover {
             background: var(--dark);
             color: #fff;
+            transform: translateY(-1px);
         }
 
     .btn-delete {
-        padding: 7px 18px;
         background: transparent;
         border: 1px solid #c0392b;
         color: #c0392b;
-        font-family: 'Raleway', sans-serif;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        cursor: pointer;
-        transition: all 0.2s;
     }
 
         .btn-delete:hover {
             background: #c0392b;
             color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .btn-edit svg, .btn-delete svg {
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
         }
 
     .empty-state {
         text-align: center;
-        padding: 60px 20px;
+        padding: 72px 20px;
+    }
+
+    .empty-state-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 16px;
+        opacity: 0.2;
+    }
+
+    .empty-state p {
         color: var(--muted);
         font-size: 0.9rem;
-    }
-
-    /* Modal */
-    .modal-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.4);
-        z-index: 999;
-        align-items: center;
-        justify-content: center;
-    }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-    .modal-card {
-        background: #fff;
-        width: 100%;
-        max-width: 480px;
-        padding: 40px;
-        box-shadow: 0 16px 48px rgba(0,0,0,0.15);
-    }
-
-    .modal-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 28px;
-    }
-
-        .modal-header h3 {
-            font-family: 'Prata', serif;
-            font-size: 1.4rem;
-            color: var(--dark);
-            font-weight: 400;
-            margin: 0;
-        }
-
-    .modal-close {
-        background: none;
-        border: none;
-        font-size: 1.4rem;
-        color: var(--muted);
-        cursor: pointer;
-        line-height: 1;
-        padding: 0;
-    }
-
-        .modal-close:hover {
-            color: var(--dark);
-        }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-        .form-group label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--dark);
-            margin-bottom: 8px;
-        }
-
-        .form-group input[type="text"] {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--border);
-            background: #fafaf8;
-            font-family: 'Raleway', sans-serif;
-            font-size: 0.9rem;
-            color: var(--dark);
-            border-radius: 0;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .form-group input:focus {
-            border-color: var(--accent);
-            background: #fff;
-        }
-
-    .modal-actions {
-        display: flex;
-        gap: 12px;
-        margin-top: 8px;
-    }
-
-    .btn-submit {
-        flex: 1;
-        padding: 13px;
-        background: var(--dark);
-        color: #fff;
-        border: none;
         font-family: 'Raleway', sans-serif;
-        font-size: 0.78rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        cursor: pointer;
-        transition: background 0.25s;
+        margin: 0;
     }
 
-        .btn-submit:hover {
-            background: var(--accent);
-        }
-
-    .btn-cancel {
-        flex: 1;
-        padding: 13px;
-        background: transparent;
+    .empty-state a {
+        display: inline-block;
+        margin-top: 16px;
         color: var(--dark);
-        border: 1px solid var(--border);
-        font-family: 'Raleway', sans-serif;
         font-size: 0.78rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.08em;
+        text-decoration: underline;
+        text-underline-offset: 3px;
         cursor: pointer;
-        transition: all 0.2s;
     }
-
-        .btn-cancel:hover {
-            border-color: var(--dark);
-        }
 
     @@media (max-width: 768px) {
-        .admin-page-wrapper {
+        .admin-wrapper {
             padding: 28px 16px;
         }
 
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 16px;
+        .col-desc {
+            display: none;
         }
 
-        thead th:first-child, tbody td:first-child {
+        .btn-edit span, .btn-delete span {
+            display: none;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 8px 10px;
+        }
+    }
+
+    @@media (max-width: 520px) {
+        .page-header h2 {
+            font-size: 1.3rem;
+        }
+
+        .col-id {
             display: none;
         }
     }
 </style>
 
-<div class="admin-page-wrapper">
+<div class="toast success" id="toast"></div>
 
+<div class="admin-wrapper">
     <div class="page-header">
-        <h2>Categories</h2>
-        <button class="btn-add" onclick="openModal()">+ Add Category</button>
+        <div>
+            <h2>Categories</h2>
+            @if (Model != null)
+            {
+                <p class="page-header-meta">@Model.Count() @(Model.Count() == 1 ? "category" : "categories") total</p>
+            }
+        </div>
+        <a class="btn-add" href="/Admin/Category/Create">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Category
+        </a>
     </div>
-
-    @if (TempData["Success"] != null)
-    {
-        <div style="background:#e9f7ef;border-left:3px solid #27ae60;padding:12px 16px;margin-bottom:20px;font-size:0.85rem;color:#1e8449;">
-            @TempData["Success"]
-        </div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-        <div style="background:#fdf0ef;border-left:3px solid #c0392b;padding:12px 16px;margin-bottom:20px;font-size:0.85rem;color:#c0392b;">
-            @TempData["Error"]
-        </div>
-    }
 
     <div class="table-card">
         <table>
             <thead>
                 <tr>
-                    <th class="td-id">#</th>
-                    <th>Category Name</th>
-                    <th style="text-align:right">Actions</th>
+                    <th class="col-id">ID</th>
+                    <th class="col-photo">Photo</th>
+                    <th class="col-name">Category Name</th>
+                    <th class="col-desc">Description</th>
+                    <th class="col-actions">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -343,19 +407,67 @@
                     @foreach (var cat in Model)
                     {
                         <tr>
-                            <td class="td-id">@cat.CategoryId</td>
-                            <td>@cat.Name</td>
-                            <td>
+                            <td class="col-id">
+                                <span class="id-badge">#@cat.CategoryId</span>
+                            </td>
+
+                            <td class="col-photo">
+                                @if (!string.IsNullOrEmpty(cat.ImageUrl))
+                                {
+                                    <img class="cat-thumb"
+                                         src="@cat.ImageUrl"
+                                         alt="@cat.Name"
+                                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+                                    <div class="cat-thumb-placeholder" style="display:none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#999">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="cat-thumb-placeholder">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#999">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                }
+                            </td>
+
+                            <td class="col-name">
+                                <p class="cat-name">@cat.Name</p>
+                            </td>
+
+                            <td class="col-desc">
+                                @if (!string.IsNullOrWhiteSpace(cat.Description))
+                                {
+                                    <span class="cat-desc">@cat.Description</span>
+                                }
+                                else
+                                {
+                                    <span class="cat-desc-empty">No description</span>
+                                }
+                            </td>
+
+                            <td class="col-actions">
                                 <div class="actions">
-                                    <a class="btn-edit"
-                                       href="/Admin/Category/Edit/@cat.CategoryId">
-                                        Edit
+                                    <a class="btn-edit" href="/Admin/Category/Edit/@cat.CategoryId">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        <span>Edit</span>
                                     </a>
                                     <form method="post"
                                           action="/Admin/Category/Delete/@cat.CategoryId"
-                                          onsubmit="return confirm('Delete @cat.Name?')">
+                                          style="margin:0"
+                                          onsubmit="return confirmDelete(event, '@cat.Name')">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn-delete">Delete</button>
+                                        <button type="submit" class="btn-delete">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            <span>Delete</span>
+                                        </button>
                                     </form>
                                 </div>
                             </td>
@@ -365,8 +477,14 @@
                 else
                 {
                     <tr>
-                        <td colspan="3">
-                            <div class="empty-state">No categories found. Add your first one!</div>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <svg class="empty-state-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#2f2f2f">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                                <p>No categories yet.</p>
+                                <a href="/Admin/Category/Create">Add your first category</a>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -375,38 +493,31 @@
     </div>
 </div>
 
-<!-- Add Category Modal -->
-<div class="modal-overlay" id="addModal">
-    <div class="modal-card">
-        <div class="modal-header">
-            <h3>Add Category</h3>
-            <button class="modal-close" onclick="closeModal()">&#x2715;</button>
-        </div>
-        <form method="post" action="/Admin/Category/Create">
-            @Html.AntiForgeryToken()
-            <div class="form-group">
-                <label for="Name">Category Name</label>
-                <input type="text" id="Name" name="Name"
-                       placeholder="e.g. Science Fiction" required />
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
-                <button type="submit" class="btn-submit">Add Category</button>
-            </div>
-        </form>
-    </div>
-</div>
-
 @section Scripts {
     <script>
-        function openModal() {
-            document.getElementById('addModal').classList.add('active');
+        function confirmDelete(e, name) {
+            if (!confirm('Delete "' + name + '"? This action cannot be undone.')) {
+                e.preventDefault();
+                return false;
+            }
+            return true;
         }
-        function closeModal() {
-            document.getElementById('addModal').classList.remove('active');
+
+        function showToast(message, type) {
+            var t = document.getElementById('toast');
+            t.textContent = message;
+            t.className = 'toast ' + (type || 'success');
+            t.classList.add('show');
+            setTimeout(function () { t.classList.remove('show'); }, 3500);
         }
-        document.getElementById('addModal').addEventListener('click', function (e) {
-            if (e.target === this) closeModal();
-        });
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+                <text>showToast('@TempData["SuccessMessage"]', 'success');</text>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+                <text>showToast('@TempData["ErrorMessage"]', 'error');</text>
+        }
     </script>
 }

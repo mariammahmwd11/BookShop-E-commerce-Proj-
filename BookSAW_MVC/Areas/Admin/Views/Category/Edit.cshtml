@@ -1,0 +1,741 @@
+﻿@model CategoryDTO
+@{
+    ViewData["Title"] = "Edit Category";
+    Layout = "_TemLayout";
+    ViewContext.RouteData.Values["area"] = "Admin";
+}
+
+<style>
+    :root {
+        --accent: #C5A992;
+        --dark: #2f2f2f;
+        --light-bg: #F3F2EC;
+        --muted: #757575;
+        --border: #E0E0E0;
+    }
+
+    .admin-wrapper {
+        padding: 48px 40px;
+        background-color: var(--light-bg);
+        min-height: 80vh;
+    }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 28px;
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.78rem;
+        color: var(--muted);
+    }
+
+        .breadcrumb a {
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+            .breadcrumb a:hover {
+                color: var(--dark);
+            }
+
+        .breadcrumb svg {
+            width: 14px;
+            height: 14px;
+            opacity: 0.5;
+        }
+
+        .breadcrumb span {
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+    .page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+        .page-header h2 {
+            font-family: 'Prata', serif;
+            font-size: 1.8rem;
+            color: var(--dark);
+            font-weight: 400;
+            margin: 0 0 6px;
+        }
+
+        .page-header p {
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin: 0;
+        }
+
+    .id-badge-lg {
+        display: inline-flex;
+        align-items: center;
+        background: #F3F2EC;
+        border: 1px solid #E0E0E0;
+        color: var(--muted);
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 6px 12px;
+        border-radius: 3px;
+        margin-top: 8px;
+    }
+
+    .form-card {
+        background: #fff;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        border-radius: 6px;
+        padding: 40px;
+        max-width: 720px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+        .form-group label {
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--muted);
+        }
+
+            .form-group label .required {
+                color: #c0392b;
+                margin-left: 2px;
+            }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            padding: 11px 14px;
+            border: 1px solid var(--border);
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.9rem;
+            color: var(--dark);
+            background: #fff;
+            border-radius: 4px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+            .form-group input[type="text"]:focus,
+            .form-group textarea:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(197,169,146,0.15);
+            }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+            line-height: 1.6;
+        }
+
+    .field-validation-error {
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.75rem;
+        color: #c0392b;
+    }
+
+    input.input-validation-error,
+    textarea.input-validation-error {
+        border-color: #c0392b;
+    }
+
+    /* ─── Photo Section ───────────────────────────────── */
+    .photo-section {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* Two-photo row: old on left, new on right */
+    .photos-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    /* Each photo card */
+    .photo-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        position: relative;
+    }
+
+        .photo-card img {
+            width: 100%;
+            height: 130px;
+            object-fit: cover;
+            display: block;
+        }
+
+    /* Badge overlaid on photo */
+    .photo-badge {
+        position: absolute;
+        top: 7px;
+        left: 7px;
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 3px 8px;
+        border-radius: 2px;
+        color: #fff;
+    }
+
+        .photo-badge.old {
+            background: rgba(0,0,0,0.55);
+        }
+
+        .photo-badge.new {
+            background: rgba(197,169,146,0.9);
+            color: #2f2f2f;
+        }
+
+    /* No-photo placeholder (when no current image) */
+    .no-photo-placeholder {
+        height: 120px;
+        background: #EDEBE4;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 8px;
+        color: var(--muted);
+    }
+
+        .no-photo-placeholder svg {
+            width: 28px;
+            height: 28px;
+            opacity: 0.3;
+        }
+
+        .no-photo-placeholder small {
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+
+    /* ─── Upload Zone (same pattern as Create view) ───── */
+
+    /*
+         * The hidden file input is display:none — NOT an absolute overlay.
+         * Clicking the zone or "Change Photo" triggers photoInput.click() via JS.
+         * This prevents the invisible input from stealing clicks on other elements.
+         */
+
+    #Photo {
+        display: none;
+    }
+
+    .upload-label {
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--muted);
+    }
+
+    .upload-zone {
+        border: 2px dashed var(--border);
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+        position: relative;
+        background: #fafaf8;
+        isolation: isolate;
+        user-select: none;
+    }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: #fff;
+        }
+
+        /* When new image selected: solid accent border, no padding */
+        .upload-zone.has-image {
+            border-color: var(--accent);
+            border-style: solid;
+            padding: 0;
+            overflow: hidden;
+            cursor: default;
+        }
+
+    .upload-placeholder {
+        pointer-events: none;
+    }
+
+        .upload-placeholder svg {
+            width: 28px;
+            height: 28px;
+            stroke: var(--muted);
+            margin-bottom: 8px;
+            opacity: 0.4;
+        }
+
+        .upload-placeholder p {
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin: 0 0 3px;
+        }
+
+        .upload-placeholder small {
+            font-size: 0.7rem;
+            color: #bbb;
+            font-family: 'Raleway', sans-serif;
+        }
+
+    /* New image preview inside upload zone */
+    #newImagePreview {
+        display: none;
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+
+    .upload-zone.has-image #newImagePreview {
+        display: block;
+    }
+
+    .upload-zone.has-image .upload-placeholder {
+        display: none;
+    }
+
+    /* Change Photo button (same as Create view) */
+    .change-photo-btn {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.62);
+        color: #fff;
+        border: none;
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 6px 12px;
+        border-radius: 3px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        gap: 6px;
+        opacity: 0;
+        transition: opacity 0.2s, background 0.2s;
+        z-index: 5;
+    }
+
+        .change-photo-btn svg {
+            width: 12px;
+            height: 12px;
+            stroke: #fff;
+            flex-shrink: 0;
+        }
+
+        .change-photo-btn:hover {
+            background: rgba(0,0,0,0.82);
+        }
+
+    .upload-zone.has-image .change-photo-btn {
+        display: inline-flex;
+    }
+
+    .upload-zone.has-image:hover .change-photo-btn {
+        opacity: 1;
+    }
+
+    /* ─── Form Actions ────────────────────────────────── */
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+        position: relative;
+        z-index: 10;
+    }
+
+    .btn-cancel {
+        padding: 11px 22px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+        .btn-cancel:hover {
+            border-color: var(--dark);
+            color: var(--dark);
+        }
+
+    .btn-submit {
+        padding: 11px 28px;
+        background: var(--dark);
+        color: #fff;
+        border: none;
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        z-index: 10;
+    }
+
+        .btn-submit:hover {
+            background: var(--accent);
+        }
+
+        .btn-submit svg {
+            width: 14px;
+            height: 14px;
+        }
+
+    /* ─── Toast ───────────────────────────────────────── */
+    .toast {
+        position: fixed;
+        top: 28px;
+        right: 28px;
+        z-index: 9999;
+        padding: 14px 22px;
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #fff;
+        border-radius: 2px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        pointer-events: none;
+    }
+
+        .toast.success {
+            background: #2f2f2f;
+            border-left: 4px solid #C5A992;
+        }
+
+        .toast.error {
+            background: #c0392b;
+            border-left: 4px solid #922b21;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    @@media (max-width: 640px) {
+        .admin-wrapper {
+            padding: 24px 16px;
+        }
+
+        .form-card {
+            padding: 24px 20px;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .photos-row {
+            grid-template-columns: 1fr;
+        }
+
+        .page-header {
+            flex-direction: column;
+            gap: 12px;
+        }
+    }
+</style>
+
+<div class="toast success" id="toast"></div>
+
+<div class="admin-wrapper">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="/Admin/Category">Categories</a>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        <span>Edit — @Model.Name</span>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h2>Edit Category</h2>
+            <p>Update the details for this category.</p>
+            <span class="id-badge-lg">ID #@Model.CategoryId</span>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="form-card">
+
+        <div asp-validation-summary="All"></div>
+
+        <form asp-action="Edit"
+              asp-controller="Category"
+              asp-area="Admin"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="CategoryId" value="@Model.CategoryId" />
+
+            <!--
+                Hidden file input — triggered via JS only.
+                display:none means it cannot steal clicks from any other element.
+            -->
+            <input type="file"
+                   id="Photo"
+                   name="Photo"
+                   accept="image/*"
+                   onchange="previewNewImage(this)" />
+
+            <div class="form-grid">
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label for="Name">
+                        Category Name <span class="required">*</span>
+                    </label>
+                    <input type="text"
+                           id="Name"
+                           name="Name"
+                           value="@Model.Name"
+                           placeholder="e.g. Science Fiction"
+                           maxlength="100"
+                           required />
+                    <span asp-validation-for="Name"></span>
+                </div>
+
+                <!-- Photo Column -->
+                <div class="form-group photo-section" style="grid-row: span 2;">
+                    <label>Photo</label>
+
+                    <!--
+                        BEFORE a new photo is picked:
+                        - shows the current photo in a single card labeled "Current Photo"
+
+                        AFTER a new photo is picked (via JS):
+                        - #single-photo-block hides
+                        - #photos-row-block shows: left = Old Photo, right = New Photo
+                    -->
+                    <!-- Single card (default state) -->
+                    <div id="single-photo-block">
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <div class="photo-card">
+                                <img src="@Model.ImageUrl" alt="@Model.Name" id="currentPhotoSingle" />
+                                <span class="photo-badge old">Current Photo</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="no-photo-placeholder">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <small>No photo uploaded</small>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Two-card row (shown after new photo is picked) -->
+                    <div id="photos-row-block" style="display:none;">
+                        <div class="photos-row">
+                            <!-- Old photo -->
+                            <div class="photo-card">
+                                <img src="@Model.ImageUrl" alt="Old photo" id="oldPhotoThumb" />
+                                <span class="photo-badge old">Old Photo</span>
+                            </div>
+                            <!-- New photo -->
+                            <div class="photo-card">
+                                <img src="" alt="New photo" id="newPhotoThumb" />
+                                <span class="photo-badge new">New Photo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload zone -->
+                    <span class="upload-label">Replace Photo</span>
+                    <div class="upload-zone" id="uploadZone" onclick="handleZoneClick(event)">
+
+                        <img id="newImagePreview" src="" alt="New Preview" />
+
+                        <div class="upload-placeholder">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p>Click to upload new photo</p>
+                            <small>Replaces current · JPG, PNG, WEBP</small>
+                        </div>
+
+                        <!--
+                            Change Photo button — same behaviour as Create view:
+                            visible on hover when zone has-image, opens file picker directly.
+                        -->
+                        <button type="button"
+                                class="change-photo-btn"
+                                onclick="openFilePicker(event)">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            Change Photo
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label for="Description">Description</label>
+                    <textarea id="Description"
+                              name="Description"
+                              placeholder="Brief description of this category...">@Model.Description</textarea>
+                </div>
+
+            </div><!-- end .form-grid -->
+            <!-- Actions — outside .form-grid so nothing can overlap the buttons -->
+            <div class="form-actions">
+                <a class="btn-cancel" href="/Admin/Category">Cancel</a>
+                <button type="submit" class="btn-submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Save Changes
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        var photoInput    = document.getElementById('Photo');
+        var uploadZone    = document.getElementById('uploadZone');
+        var newImgPreview = document.getElementById('newImagePreview');   // inside zone
+        var newPhotoThumb = document.getElementById('newPhotoThumb');     // in two-card row
+        var singleBlock   = document.getElementById('single-photo-block');
+        var rowBlock      = document.getElementById('photos-row-block');
+
+        /* Open the hidden file picker */
+        function openFilePicker(event) {
+            if (event) event.stopPropagation();
+            photoInput.click();
+        }
+
+        /*
+         * Zone click:
+         * - If already has an image → do nothing (use "Change Photo" button)
+         * - If empty → open file picker
+         */
+        function handleZoneClick(event) {
+            if (uploadZone.classList.contains('has-image')) return;
+            openFilePicker(null);
+        }
+
+        /*
+         * Called when user picks a file.
+         * 1. Shows preview inside the upload zone (with Change Photo button)
+         * 2. Hides the single current-photo card
+         * 3. Shows the two-card row: Old Photo | New Photo
+         */
+        function previewNewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var src = e.target.result;
+
+                    /* Update upload zone preview */
+                    newImgPreview.src = src;
+                    uploadZone.classList.add('has-image');
+
+                    /* Update the New Photo thumb in the two-card row */
+                    newPhotoThumb.src = src;
+
+                    /* Switch from single card → two-card row */
+                    singleBlock.style.display = 'none';
+                    rowBlock.style.display    = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        /* Toast helper */
+        function showToast(message, type) {
+            var t = document.getElementById('toast');
+            t.textContent = message;
+            t.className   = 'toast ' + (type || 'success');
+            t.classList.add('show');
+            setTimeout(function () { t.classList.remove('show'); }, 3500);
+        }
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+                <text>showToast('@TempData["SuccessMessage"]', 'success');</text>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+                <text>showToast('@TempData["ErrorMessage"]', 'error');</text>
+        }
+    </script>
+}

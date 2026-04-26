@@ -1,0 +1,515 @@
+﻿@model CategoryDTO
+@{
+    ViewData["Title"] = "Add Category";
+    Layout = "_TemLayout";
+    ViewContext.RouteData.Values["area"] = "Admin";
+}
+
+<style>
+    :root {
+        --accent: #C5A992;
+        --dark: #2f2f2f;
+        --light-bg: #F3F2EC;
+        --muted: #757575;
+        --border: #E0E0E0;
+    }
+
+    .admin-wrapper {
+        padding: 48px 40px;
+        background-color: var(--light-bg);
+        min-height: 80vh;
+    }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 28px;
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.78rem;
+        color: var(--muted);
+    }
+
+        .breadcrumb a {
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+            .breadcrumb a:hover {
+                color: var(--dark);
+            }
+
+        .breadcrumb svg {
+            width: 14px;
+            height: 14px;
+            opacity: 0.5;
+        }
+
+        .breadcrumb span {
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+    .page-header {
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+        .page-header h2 {
+            font-family: 'Prata', serif;
+            font-size: 1.8rem;
+            color: var(--dark);
+            font-weight: 400;
+            margin: 0 0 6px;
+        }
+
+        .page-header p {
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin: 0;
+        }
+
+    .form-card {
+        background: #fff;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        border-radius: 6px;
+        padding: 40px;
+        max-width: 720px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+        .form-group label {
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--muted);
+        }
+
+            .form-group label .required {
+                color: #c0392b;
+                margin-left: 2px;
+            }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            padding: 11px 14px;
+            border: 1px solid var(--border);
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.9rem;
+            color: var(--dark);
+            background: #fff;
+            border-radius: 4px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+            .form-group input[type="text"]:focus,
+            .form-group textarea:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(197,169,146,0.15);
+            }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+            line-height: 1.6;
+        }
+
+    .field-validation-error {
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.75rem;
+        color: #c0392b;
+        margin-top: 2px;
+    }
+
+    input.input-validation-error,
+    textarea.input-validation-error {
+        border-color: #c0392b;
+    }
+
+    /* ─── Upload Zone ─────────────────────────────────── */
+
+    /*
+         * FIX SUMMARY:
+         * Before: input[type=file] covered the whole zone with position:absolute inset:0
+         *         so clicking the "Change Photo" button was impossible — the file input
+         *         was always on top and captured every click.
+         *
+         * After:
+         *  - The hidden file input is removed from the DOM overlay entirely.
+         *    It now sits hidden (display:none) and is triggered programmatically.
+         *  - Clicking the empty zone calls uploadZone.click() → which calls photoInput.click()
+         *  - Clicking "Change Photo" button calls photoInput.click() directly
+         *  - No invisible overlay stealing clicks anymore.
+         */
+
+    .upload-zone {
+        border: 2px dashed var(--border);
+        border-radius: 8px;
+        padding: 28px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+        position: relative;
+        background: #fafaf8;
+        isolation: isolate;
+        user-select: none;
+    }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: #fff;
+        }
+
+        /* When image is selected: switch to solid border, remove padding */
+        .upload-zone.has-image {
+            border-color: var(--accent);
+            border-style: solid;
+            padding: 0;
+            overflow: hidden;
+            cursor: default; /* whole zone no longer clickable — use button */
+        }
+
+    /* The file input is hidden entirely — triggered via JS */
+    #Photo {
+        display: none;
+    }
+
+    .upload-placeholder {
+        pointer-events: none;
+    }
+
+        .upload-placeholder svg {
+            width: 36px;
+            height: 36px;
+            stroke: var(--muted);
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .upload-placeholder p {
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin: 0 0 4px;
+        }
+
+        .upload-placeholder small {
+            font-size: 0.72rem;
+            color: #bbb;
+            font-family: 'Raleway', sans-serif;
+        }
+
+    #imagePreview {
+        display: none;
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+
+    .upload-zone.has-image #imagePreview {
+        display: block;
+    }
+
+    .upload-zone.has-image .upload-placeholder {
+        display: none;
+    }
+
+    /* Change Photo button — always rendered, shown on hover over the image zone */
+    .change-photo-btn {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.62);
+        color: #fff;
+        border: none;
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 6px 12px;
+        border-radius: 3px;
+        cursor: pointer;
+        display: none; /* hidden until an image is selected */
+        align-items: center;
+        gap: 6px;
+        opacity: 0;
+        transition: opacity 0.2s, background 0.2s;
+        z-index: 5; /* sits above the preview image */
+    }
+
+        .change-photo-btn svg {
+            width: 12px;
+            height: 12px;
+            stroke: #fff;
+            flex-shrink: 0;
+        }
+
+        .change-photo-btn:hover {
+            background: rgba(0, 0, 0, 0.82);
+        }
+
+    /* Show button when zone has an image */
+    .upload-zone.has-image .change-photo-btn {
+        display: inline-flex;
+    }
+
+    /* Reveal on hover over the zone */
+    .upload-zone.has-image:hover .change-photo-btn {
+        opacity: 1;
+    }
+
+    /* ─── Form Actions ────────────────────────────────── */
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+        position: relative;
+        z-index: 10;
+    }
+
+    .btn-cancel {
+        padding: 11px 22px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+        .btn-cancel:hover {
+            border-color: var(--dark);
+            color: var(--dark);
+        }
+
+    .btn-submit {
+        padding: 11px 28px;
+        background: var(--dark);
+        color: #fff;
+        border: none;
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        z-index: 10;
+    }
+
+        .btn-submit:hover {
+            background: var(--accent);
+        }
+
+        .btn-submit svg {
+            width: 14px;
+            height: 14px;
+        }
+
+    @@media (max-width: 640px) {
+        .admin-wrapper {
+            padding: 24px 16px;
+        }
+
+        .form-card {
+            padding: 24px 20px;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="admin-wrapper">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="/Admin/Category">Categories</a>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        <span>Add Category</span>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2>Add Category</h2>
+        <p>Fill in the details to create a new category.</p>
+    </div>
+
+    <!-- Form -->
+    <div class="form-card">
+        <form asp-action="Create"
+              asp-controller="Category"
+              asp-area="Admin"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <!--
+                FIX: The file input is now display:none — NOT an absolute overlay.
+                It lives inside the form (so it submits correctly) but is triggered
+                purely via JS. No invisible element can steal clicks anymore.
+            -->
+            <input type="file"
+                   id="Photo"
+                   name="Photo"
+                   accept="image/*"
+                   onchange="previewImage(this)" />
+
+            <div class="form-grid">
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label for="Name">
+                        Category Name <span class="required">*</span>
+                    </label>
+                    <input type="text"
+                           id="Name"
+                           name="Name"
+                           value="@Model?.Name"
+                           placeholder="e.g. Science Fiction"
+                           maxlength="100"
+                           required />
+                    @Html.ValidationMessage("Name")
+                </div>
+
+                <!-- Photo Upload -->
+                <div class="form-group" style="grid-row: span 2;">
+                    <label>Photo</label>
+
+                    <!--
+                        Clicking the empty zone → openFilePicker()
+                        When has-image: zone click is disabled (cursor:default),
+                        only the "Change Photo" button works.
+                    -->
+                    <div class="upload-zone" id="uploadZone" onclick="handleZoneClick(event)">
+
+                        <img id="imagePreview" src="" alt="Preview" />
+
+                        <div class="upload-placeholder">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p>Click to upload a photo</p>
+                            <small>JPG, PNG, WEBP — max 5MB</small>
+                        </div>
+
+                        <!--
+                            "Change Photo" button:
+                            - type="button" so it never submits the form
+                            - onclick triggers the hidden file input directly
+                            - stopPropagation prevents the zone's onclick from also firing
+                        -->
+                        <button type="button"
+                                class="change-photo-btn"
+                                onclick="openFilePicker(event)">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            Change Photo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label for="Description">Description</label>
+                    <textarea id="Description"
+                              name="Description"
+                              placeholder="Brief description of this category...">@Model?.Description</textarea>
+                </div>
+
+            </div><!-- end .form-grid -->
+            <!-- Actions — outside .form-grid so nothing overlaps the buttons -->
+            <div class="form-actions">
+                <a class="btn-cancel" href="/Admin/Category/Index">Cancel</a>
+                <button type="submit" class="btn-submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Save Category
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        var photoInput = document.getElementById('Photo');
+        var uploadZone = document.getElementById('uploadZone');
+        var imagePreview = document.getElementById('imagePreview');
+
+        /* Opens the file picker — called by both zone click and Change Photo button */
+        function openFilePicker(event) {
+            if (event) event.stopPropagation(); // prevent zone's onclick from double-firing
+            photoInput.click();
+        }
+
+        /*
+         * Zone click handler:
+         * - If zone already has an image, do nothing (user must use "Change Photo" button)
+         * - If zone is empty, open file picker
+         */
+        function handleZoneClick(event) {
+            if (uploadZone.classList.contains('has-image')) return;
+            openFilePicker(null);
+        }
+
+        /* Called when the user picks a file */
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    uploadZone.classList.add('has-image');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}

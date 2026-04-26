@@ -1,5 +1,9 @@
 
+using BookSAW.business_logic.IServices;
+using BookSAW.business_logic.Services;
 using BookSAW.DataAccess.Data;
+using BookSAW.DataAccess.Repositories.IRepositories;
+using BookSAW.DataAccess.Repositories.Repository;
 using BookSAW.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +31,9 @@ namespace BookSAW_MVC
             builder.Services.AddIdentity<AppUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
-
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IImageServices, ImageServices>();
         builder.Services.AddControllersWithViews();
           
 

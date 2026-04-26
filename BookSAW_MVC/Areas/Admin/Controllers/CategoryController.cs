@@ -8,10 +8,12 @@ namespace BookSAW_MVC.Areas.Admin.Controllers
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryService;
+        private readonly IImageServices imageServices;
 
-        public CategoryController(ICategoryService categoryService)
+        public CategoryController(ICategoryService categoryService, IImageServices imageServices)
         {
             _categoryService = categoryService;
+            this.imageServices = imageServices;
         }
 
         public IActionResult Index()
@@ -20,7 +22,7 @@ namespace BookSAW_MVC.Areas.Admin.Controllers
             return View(categories);
         }
 
-        // ================= CREATE =================
+
 
         public IActionResult Create()
         {
@@ -29,10 +31,18 @@ namespace BookSAW_MVC.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CategoryDTO dto)
+        public async Task<IActionResult> Create(CategoryDTO dto)
         {
-            if (!ModelState.IsValid)
+             if (!ModelState.IsValid)
+            { 
+
                 return View(dto);
+            }   
+
+                if (dto.Photo != null)
+            {
+                dto.ImageUrl = await imageServices.SaveImage(dto.Photo);
+            }
 
             _categoryService.AddCategory(dto);
 
@@ -40,11 +50,14 @@ namespace BookSAW_MVC.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        // ================= EDIT =================
+
 
         public IActionResult Edit(int id)
         {
+
+
             var category = _categoryService.GetCategoryById(id);
+
 
             if (category == null)
                 return NotFound();
@@ -54,10 +67,39 @@ namespace BookSAW_MVC.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(CategoryDTO dto)
+        public async Task<IActionResult> Edit(CategoryDTO dto)
         {
             if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new
+                    {
+                        Field = x.Key,
+                        Errors = x.Value.Errors.Select(e => e.ErrorMessage)
+                    });
+
                 return View(dto);
+            }
+
+            var existingCategory = _categoryService.GetCategoryById(dto.CategoryId);
+
+            if (existingCategory == null)
+                return NotFound();
+
+           
+            if (dto.Photo != null && dto.Photo.Length > 0)
+            {
+               
+                imageServices.DeleteCategoryImage(existingCategory.ImageUrl);
+
+                dto.ImageUrl =await imageServices.SaveImage(dto.Photo);
+            }
+            else
+            {
+             
+                dto.ImageUrl = existingCategory.ImageUrl;
+            }
 
             _categoryService.UpdateCategory(dto);
 
@@ -65,16 +107,24 @@ namespace BookSAW_MVC.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        // ================= DELETE =================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)
         {
-            _categoryService.DeleteCategory(id);
+            var category = _categoryService.GetCategoryById(id);
+
+            if (category != null)
+            {
+                imageServices.DeleteCategoryImage(category.ImageUrl);
+                _categoryService.DeleteCategory(id);
+            }
 
             TempData["Success"] = "Category deleted successfully";
             return RedirectToAction("Index");
         }
+
+
+     
+        }
     }
-}
+    

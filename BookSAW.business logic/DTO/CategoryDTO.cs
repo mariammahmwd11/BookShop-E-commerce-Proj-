@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 public class CategoryDTO
 {
@@ -6,5 +7,12 @@ public class CategoryDTO
 
     [Required(ErrorMessage = "Category name is required")]
     [MaxLength(100)]
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
+
+    public string Description { get; set; }
+
+
+    public IFormFile? Photo { get; set; }
+
+    public string? ImageUrl { get; set; }
 }

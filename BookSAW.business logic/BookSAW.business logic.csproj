@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BookSAW.DataAccess\BookSAW.DataAccess.csproj" />
     <ProjectReference Include="..\BookSAW.Models\BookSAW.Models.csproj" />
   </ItemGroup>
 
