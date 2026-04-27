@@ -1,0 +1,679 @@
+﻿@using BookSAW.BL.DTO
+@model AuthorDTO
+@{
+    ViewData["Title"] = "Edit Author";
+    Layout = "_TemLayout";
+    ViewContext.RouteData.Values["area"] = "Admin";
+}
+
+<style>
+    :root {
+        --accent: #C5A992;
+        --dark: #2f2f2f;
+        --light-bg: #F3F2EC;
+        --muted: #757575;
+        --border: #E0E0E0;
+    }
+
+    .admin-wrapper {
+        padding: 48px 40px;
+        background-color: var(--light-bg);
+        min-height: 80vh;
+    }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 28px;
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.78rem;
+        color: var(--muted);
+    }
+
+        .breadcrumb a {
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+            .breadcrumb a:hover {
+                color: var(--dark);
+            }
+
+        .breadcrumb svg {
+            width: 14px;
+            height: 14px;
+            opacity: 0.5;
+        }
+
+        .breadcrumb span {
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+    .page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+        .page-header h2 {
+            font-family: 'Prata',serif;
+            font-size: 1.8rem;
+            color: var(--dark);
+            font-weight: 400;
+            margin: 0 0 6px;
+        }
+
+        .page-header p {
+            font-family: 'Raleway',sans-serif;
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin: 0;
+        }
+
+    .id-badge-lg {
+        display: inline-flex;
+        align-items: center;
+        background: #F3F2EC;
+        border: 1px solid #E0E0E0;
+        color: var(--muted);
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 6px 12px;
+        border-radius: 3px;
+        margin-top: 8px;
+    }
+
+    .form-card {
+        background: #fff;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        border-radius: 6px;
+        padding: 40px;
+        max-width: 720px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+        .form-group.full-width {
+            grid-column: 1/-1;
+        }
+
+        .form-group label {
+            font-family: 'Raleway',sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--muted);
+        }
+
+            .form-group label .required {
+                color: #c0392b;
+                margin-left: 2px;
+            }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            padding: 11px 14px;
+            border: 1px solid var(--border);
+            font-family: 'Raleway',sans-serif;
+            font-size: 0.9rem;
+            color: var(--dark);
+            background: #fff;
+            border-radius: 4px;
+            transition: border-color 0.2s,box-shadow 0.2s;
+            outline: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+            .form-group input:focus, .form-group textarea:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(197,169,146,0.15);
+            }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.6;
+        }
+
+    .field-validation-error {
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.75rem;
+        color: #c0392b;
+        margin-top: 2px;
+    }
+
+    input.input-validation-error, textarea.input-validation-error {
+        border-color: #c0392b;
+    }
+
+    /* ── Avatar upload zone ── */
+    #Photo {
+        display: none;
+    }
+
+    .avatar-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Single current avatar */
+    .avatar-current {
+        position: relative;
+        width: 160px;
+        height: 160px;
+    }
+
+        .avatar-current img {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--border);
+            display: block;
+        }
+
+    .avatar-placeholder {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: #EDEBE4;
+        border: 3px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Prata',serif;
+        font-size: 3rem;
+        color: var(--muted);
+    }
+
+    .photo-badge {
+        position: absolute;
+        bottom: 6px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 3px 10px;
+        border-radius: 2px;
+        color: #fff;
+        white-space: nowrap;
+    }
+
+        .photo-badge.old {
+            background: rgba(0,0,0,0.55);
+        }
+
+        .photo-badge.new {
+            background: rgba(197,169,146,0.9);
+            color: #2f2f2f;
+        }
+
+    /* Two avatars side by side after picking new photo */
+    .avatars-row {
+        display: flex;
+        gap: 20px;
+        align-items: flex-end;
+    }
+
+        .avatars-row .avatar-current {
+            width: 120px;
+            height: 120px;
+        }
+
+            .avatars-row .avatar-current img {
+                width: 120px;
+                height: 120px;
+            }
+
+        .avatars-row .avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            font-size: 2.2rem;
+        }
+
+    /* Upload zone — circular */
+    .upload-zone {
+        border: 2px dashed var(--border);
+        border-radius: 50%;
+        width: 160px;
+        height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: border-color 0.2s,background 0.2s;
+        position: relative;
+        background: #fafaf8;
+        isolation: isolate;
+        user-select: none;
+        overflow: hidden;
+    }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: #fff;
+        }
+
+        .upload-zone.has-image {
+            border-color: var(--accent);
+            border-style: solid;
+            cursor: default;
+        }
+
+    .upload-placeholder {
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .upload-placeholder svg {
+            width: 32px;
+            height: 32px;
+            stroke: var(--muted);
+            opacity: 0.4;
+        }
+
+        .upload-placeholder p {
+            font-family: 'Raleway',sans-serif;
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin: 0;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+    #newImagePreview {
+        display: none;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .upload-zone.has-image #newImagePreview {
+        display: block;
+    }
+
+    .upload-zone.has-image .upload-placeholder {
+        display: none;
+    }
+
+    .change-photo-btn {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.55);
+        color: #fff;
+        border: none;
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 8px 0;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        opacity: 0;
+        transition: opacity 0.2s;
+        z-index: 5;
+    }
+
+        .change-photo-btn svg {
+            width: 10px;
+            height: 10px;
+            stroke: #fff;
+        }
+
+        .change-photo-btn:hover {
+            background: rgba(0,0,0,0.75);
+        }
+
+    .upload-zone.has-image .change-photo-btn {
+        display: inline-flex;
+    }
+
+    .upload-zone.has-image:hover .change-photo-btn {
+        opacity: 1;
+    }
+
+    .upload-hint {
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.72rem;
+        color: #bbb;
+        text-align: center;
+    }
+
+    .upload-label-text {
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--muted);
+    }
+
+    /* Toast */
+    .toast {
+        position: fixed;
+        top: 28px;
+        right: 28px;
+        z-index: 9999;
+        padding: 14px 22px;
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #fff;
+        border-radius: 2px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.3s,transform 0.3s;
+        pointer-events: none;
+    }
+
+        .toast.success {
+            background: #2f2f2f;
+            border-left: 4px solid #C5A992;
+        }
+
+        .toast.error {
+            background: #c0392b;
+            border-left: 4px solid #922b21;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+        position: relative;
+        z-index: 10;
+    }
+
+    .btn-cancel {
+        padding: 11px 22px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+        .btn-cancel:hover {
+            border-color: var(--dark);
+            color: var(--dark);
+        }
+
+    .btn-submit {
+        padding: 11px 28px;
+        background: var(--dark);
+        color: #fff;
+        border: none;
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        z-index: 10;
+    }
+
+        .btn-submit:hover {
+            background: var(--accent);
+        }
+
+        .btn-submit svg {
+            width: 14px;
+            height: 14px;
+        }
+
+    @@media (max-width:640px) {
+        .admin-wrapper {
+            padding: 24px 16px;
+        }
+
+        .form-card {
+            padding: 24px 20px;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .page-header {
+            flex-direction: column;
+            gap: 12px;
+        }
+    }
+</style>
+
+<div class="toast" id="toast"></div>
+
+<div class="admin-wrapper">
+
+    <div class="breadcrumb">
+        <a href="/Admin/Author">Authors</a>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        <span>Edit — @Model.Name</span>
+    </div>
+
+    <div class="page-header">
+        <div>
+            <h2>Edit Author</h2>
+            <p>Update the details for this author.</p>
+            <span class="id-badge-lg">ID #@Model.Id</span>
+        </div>
+    </div>
+
+    <div class="form-card">
+
+        <div asp-validation-summary="All"></div>
+
+        <form asp-action="Edit" asp-controller="Author" asp-area="Admin"
+              method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" value="@Model.Id" />
+
+            <!-- Hidden file input -->
+            <input type="file" id="Photo" name="Photo" accept="image/*" onchange="previewNewImage(this)" />
+
+            <div class="form-grid">
+
+                <!-- Avatar section — full width -->
+                <div class="form-group full-width">
+                    <label>Author Photo</label>
+
+                    <div class="avatar-section">
+
+                        <!-- Single current avatar (default state) -->
+                        <div id="single-avatar-block">
+                            <div class="avatar-current">
+                                @if (!string.IsNullOrEmpty(Model.ImageURl))
+                                {
+                                    <img src="@Model.ImageURl" alt="@Model.Name" id="currentAvatarSingle" />
+                                    <span class="photo-badge old">Current</span>
+                                }
+                                else
+                                {
+                                    <div class="avatar-placeholder">@Model.Name.Substring(0, 1).ToUpper()</div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Two avatars side-by-side (shown after picking new photo) -->
+                        <div id="avatars-row-block" style="display:none;">
+                            <div class="avatars-row">
+                                <div class="avatar-current">
+                                    @if (!string.IsNullOrEmpty(Model.ImageURl))
+                                    {
+                                        <img src="@Model.ImageURl" alt="Old" />
+                                    }
+                                    else
+                                    {
+                                        <div class="avatar-placeholder" style="width:120px;height:120px;font-size:2.2rem">@Model.Name.Substring(0, 1).ToUpper()</div>
+                                    }
+                                    <span class="photo-badge old">Old</span>
+                                </div>
+                                <div class="avatar-current">
+                                    <img id="newAvatarThumb" src="" alt="New" />
+                                    <span class="photo-badge new">New</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upload zone -->
+                        <span class="upload-label-text">Replace Photo</span>
+                        <div class="upload-zone" id="uploadZone" onclick="handleZoneClick(event)">
+                            <img id="newImagePreview" src="" alt="New Preview" />
+                            <div class="upload-placeholder">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <p>Upload new photo</p>
+                            </div>
+                            <button type="button" class="change-photo-btn" onclick="openFilePicker(event)">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                Change
+                            </button>
+                        </div>
+                        <p class="upload-hint">JPG, PNG, WEBP — max 5MB</p>
+
+                    </div>
+                </div>
+
+                <!-- Name -->
+                <div class="form-group full-width">
+                    <label for="Name">Author Name <span class="required">*</span></label>
+                    <input type="text" id="Name" name="Name" value="@Model.Name"
+                           placeholder="e.g. Fyodor Dostoevsky" maxlength="200" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+
+                <!-- Bio -->
+                <div class="form-group full-width">
+                    <label for="Bio">Bio <span style="color:#bbb;font-weight:400">(optional)</span></label>
+                    <textarea id="Bio" name="Bio"
+                              placeholder="A brief biography of the author...">@Model.Bio</textarea>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <a class="btn-cancel" href="/Admin/Author/Index">Cancel</a>
+                <button type="submit" class="btn-submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Save Changes
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        var photoInput     = document.getElementById('Photo');
+        var uploadZone     = document.getElementById('uploadZone');
+        var newImgPreview  = document.getElementById('newImagePreview');
+        var newAvatarThumb = document.getElementById('newAvatarThumb');
+        var singleBlock    = document.getElementById('single-avatar-block');
+        var rowBlock       = document.getElementById('avatars-row-block');
+
+        function openFilePicker(event) {
+            if (event) event.stopPropagation();
+            photoInput.click();
+        }
+        function handleZoneClick(event) {
+            if (uploadZone.classList.contains('has-image')) return;
+            openFilePicker(null);
+        }
+        function previewNewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var src = e.target.result;
+                    newImgPreview.src  = src;
+                    newAvatarThumb.src = src;
+                    uploadZone.classList.add('has-image');
+                    singleBlock.style.display = 'none';
+                    rowBlock.style.display    = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function showToast(msg, type) {
+            var t = document.getElementById('toast');
+            t.textContent = msg; t.className = 'toast ' + (type || 'success'); t.classList.add('show');
+            setTimeout(function(){ t.classList.remove('show'); }, 3500);
+        }
+        @if (TempData["Success"] != null)
+        {
+            <text>showToast('@TempData["Success"]','success');</text>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <text>showToast('@TempData["Error"]','error');</text>
+        }
+    </script>
+}

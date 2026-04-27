@@ -7,8 +7,8 @@ namespace BookSAW.business_logic.IServices
 {
     public interface IImageServices
     {
-        Task<string> SaveImage(IFormFile photo);
-        void DeleteCategoryImage(string imageUrl);
+        Task<string> SaveImage(IFormFile photo, string folderName);
+        void DeleteImage(string imageUrl);
 
 
     }

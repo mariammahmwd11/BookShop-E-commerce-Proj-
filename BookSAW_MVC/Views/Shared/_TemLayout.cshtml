@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-	<title>BookSaw - Free Book Store HTML CSS Template</title>
+	<title>BookSaw - Book Store </title>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -52,9 +52,8 @@
 						<div class="right-element">
 							@if (User.Identity.IsAuthenticated)
 							{
-								<a href="#" class="user-account for-buy">
-									<i class="icon icon-user"></i><span>ِAccount</span>
-								</a>
+								
+								
 								<a href="/User/Account/Logout" class="for-buy">
 									<i class="icon icon-logout"></i><span>Logout</span>
 								</a>
@@ -71,12 +70,7 @@
 									<i class="icon icon-user"></i><span>Register</span>
 								</a>
 							}
-							<a href="#" class="cart for-buy">
-								<i class="icon icon-clipboard"></i><span>
-									Cart:(0
-									$)
-								</span>
-							</a>
+							
 
 							<div class="action-menu">
 
@@ -114,36 +108,21 @@
 						<nav id="navbar">
 							<div class="main-menu stellarnav">
 								<ul class="menu-list">
-									<li class="menu-item active"><a href="#home">Home</a></li>
-									<li class="menu-item has-sub">
-										<a href="#pages" class="nav-link">Pages</a>
-
-										<ul>
-											<li class="active"><a href="index.html">Home</a></li>
-											<li><a href="index.html">About</a></li>
-											<li><a href="index.html">Styles</a></li>
-											<li><a href="index.html">Blog</a></li>
-											<li><a href="index.html">Post Single</a></li>
-											<li><a href="index.html">Our Store</a></li>
-											<li><a href="index.html">Product Single</a></li>
-											<li><a href="index.html">Contact</a></li>
-											<li><a href="index.html">Thank You</a></li>
-										</ul>
-
+									<li class="menu-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+										<a asp-area="User" asp-controller="HomePage" asp-action="Index">Home</a>
 									</li>
-									<li class="menu-item"><a href="#featured-books" class="nav-link">Featured</a></li>
-									<li class="menu-item"><a href="#popular-books" class="nav-link">Popular</a></li>
-									<li class="menu-item"><a href="#special-offer" class="nav-link">Offer</a></li>
-									<li class="menu-item"><a href="#latest-blog" class="nav-link">Articles</a></li>
-									<li class="menu-item"><a href="#download-app" class="nav-link">Download App</a></li>
+									<li class="menu-item @(ViewContext.RouteData.Values["action"]?.ToString() == "GetFeaturedBooks" ? "active" : "")">
+										<a asp-area="User" asp-controller="HomePage" asp-action="GetFeaturedBooks">Featured</a>
+									</li>
+									<li class="menu-item @(ViewContext.RouteData.Values["action"]?.ToString() == "GetAllBooks" ? "active" : "")">
+										<a asp-area="User" asp-controller="HomePage" asp-action="GetAllBooks">Popular</a>
+									</li>
+									<li class="menu-item @(ViewContext.RouteData.Values["action"]?.ToString() == "GetOfferedBooks" ? "active" : "")">
+										<a asp-area="User" asp-controller="HomePage" asp-action="GetOfferedBooks">Offer</a>
+									</li>
 								</ul>
 
-								<div class="hamburger">
-									<span class="bar"></span>
-									<span class="bar"></span>
-									<span class="bar"></span>
-								</div>
-
+								
 							</div>
 						</nav>
 
@@ -310,6 +289,12 @@
 
 						</div>
 					</div><!--grid-->
+					<div class="hamburger">
+						<span class="bar"></span>
+						<span class="bar"></span>
+						<span class="bar"></span>
+					</div>
+
 
 				</div><!--footer-bottom-content-->
 			</div>

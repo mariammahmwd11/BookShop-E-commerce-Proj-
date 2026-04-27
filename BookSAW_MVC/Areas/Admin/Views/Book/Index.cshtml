@@ -1,0 +1,708 @@
+﻿@using BookSAW.BL.DTO
+@model IEnumerable<BookSAW.BL.DTO.BookDTO>
+@{
+    ViewData["Title"] = "Books";
+    Layout = "_TemLayout";
+    ViewContext.RouteData.Values["area"] = "Admin";
+    var categories = ViewBag.Categories as IEnumerable<CategoryDTO> ?? Enumerable.Empty<CategoryDTO>();
+
+    var searchVal = Context.Request.Query["search"].ToString();
+    var catFilter = Context.Request.Query["categoryId"].ToString();
+    var featFilter = Context.Request.Query["featuredOnly"].ToString() == "true";
+
+    var filtered = Model ?? Enumerable.Empty<BookDTO>();
+    if (!string.IsNullOrWhiteSpace(searchVal))
+        filtered = filtered.Where(b => b.Name.Contains(searchVal, StringComparison.OrdinalIgnoreCase));
+    if (!string.IsNullOrWhiteSpace(catFilter) && int.TryParse(catFilter, out int catId))
+        filtered = filtered.Where(b => b.CategoryId == catId);
+    if (featFilter)
+        filtered = filtered.Where(b => b.IsFeatured);
+}
+
+<style>
+
+    :root {
+        --accent: #C5A992;
+        --dark: #2f2f2f;
+        --light-bg: #F3F2EC;
+        --muted: #757575;
+        --border: #E0E0E0;
+    }
+
+    .admin-wrapper {
+        padding: 48px 40px;
+        background-color: var(--light-bg);
+        min-height: 80vh;
+    }
+
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+        .page-header h2 {
+            font-family: 'Prata',serif;
+            font-size: 1.8rem;
+            color: var(--dark);
+            font-weight: 400;
+            margin: 0;
+        }
+
+    .page-header-meta {
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 4px;
+    }
+
+    .btn-add {
+        padding: 10px 22px;
+        background: var(--dark);
+        color: #fff;
+        border: none;
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        transition: background 0.25s;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .btn-add:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+    .toast {
+        position: fixed;
+        top: 28px;
+        right: 28px;
+        z-index: 9999;
+        padding: 14px 22px;
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #fff;
+        border-radius: 2px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.3s,transform 0.3s;
+        pointer-events: none;
+    }
+
+        .toast.success {
+            background: #2f2f2f;
+            border-left: 4px solid #C5A992;
+        }
+
+        .toast.error {
+            background: #c0392b;
+            border-left: 4px solid #922b21;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    /* ===== FIX: filters-bar uses align-items: flex-end ===== */
+    .filters-bar {
+        background: #fff;
+        border-radius: 6px;
+        padding: 16px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items:center; 
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+        .filter-group label {
+            font-family: 'Raleway',sans-serif;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--muted);
+        }
+
+        .filter-group input[type="text"], .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: 'Raleway',sans-serif;
+            font-size: 0.85rem;
+            color: var(--dark);
+            background: #fff;
+            outline: none;
+            min-width: 160px;
+            transition: border-color 0.2s;
+            height: 38px;
+        }
+
+            .filter-group input:focus, .filter-group select:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(197,169,146,0.15);
+            }
+
+    /* ===== FIX: checkbox group aligns to bottom like the buttons ===== */
+    .filter-check-group {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        cursor: pointer;
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.8rem;
+        color: var(--dark);
+        font-weight: 600;
+        user-select: none;
+        height: 38px; /* FIX: same height as inputs/buttons so it sits on the same baseline */
+        margin-bottom: 0;
+    }
+
+        .filter-check-group input {
+            accent-color: var(--accent);
+            width: 15px;
+            height: 15px;
+            margin: 0;
+        }
+
+    /* ===== shared base for both filter buttons ===== */
+    .btn-filter {
+        padding: 0 18px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        cursor: pointer;
+        border-radius: 4px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        transition: background 0.2s, color 0.2s, border-color 0.2s;
+        background: transparent;
+        color: var(--muted);
+        border-color: var(--border);
+    }
+
+  
+
+        .btn-filter:hover{
+            background: transparent;
+            border-color: var(--dark);
+            color: var(--dark);
+        }
+
+    .table-card {
+        background: #fff;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: #EDEBE4;
+    }
+
+        thead th {
+            padding: 13px 14px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+            thead th:first-child {
+                padding-left: 20px;
+            }
+
+            thead th:last-child {
+                padding-right: 20px;
+                text-align: right;
+            }
+
+    tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: background 0.15s;
+    }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: #fafaf8;
+        }
+
+    tbody td {
+        padding: 13px 14px;
+        font-size: 0.88rem;
+        color: var(--dark);
+        vertical-align: middle;
+    }
+
+        tbody td:first-child {
+            padding-left: 20px;
+        }
+
+        tbody td:last-child {
+            padding-right: 20px;
+        }
+
+    .book-thumb {
+        width: 42px;
+        height: 54px;
+        border-radius: 4px;
+        object-fit: cover;
+        border: 1px solid var(--border);
+        display: block;
+    }
+
+    .book-thumb-placeholder {
+        width: 42px;
+        height: 54px;
+        border-radius: 4px;
+        background: #EDEBE4;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .book-thumb-placeholder svg {
+            width: 16px;
+            height: 16px;
+            opacity: 0.3;
+        }
+
+    .book-name {
+        font-family: 'Raleway',sans-serif;
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: var(--dark);
+        margin: 0;
+        max-width: 180px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .id-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #F3F2EC;
+        border: 1px solid #E0E0E0;
+        color: var(--muted);
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 3px 8px;
+        border-radius: 3px;
+    }
+
+    .badge-featured {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #fff8f0;
+        border: 1px solid #f5c98a;
+        color: #b7700d;
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        padding: 3px 8px;
+        border-radius: 3px;
+    }
+
+    .badge-offer {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #f0faf0;
+        border: 1px solid #8fd48f;
+        color: #2e7d32;
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        padding: 3px 8px;
+        border-radius: 3px;
+    }
+
+    .badge-none {
+        color: #ccc;
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.75rem;
+        font-style: italic;
+    }
+
+    .price-cell {
+        font-family: 'Raleway',sans-serif;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--dark);
+        white-space: nowrap;
+    }
+
+    .price-original {
+        font-size: 0.75rem;
+        color: #bbb;
+        text-decoration: line-through;
+        display: block;
+    }
+
+    .price-discounted {
+        color: #2e7d32;
+    }
+
+    .stock-cell {
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .stock-low {
+        color: #c0392b;
+    }
+
+    .actions {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 0 12px;
+        font-family: 'Raleway',sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        border-radius: 4px;
+        white-space: nowrap;
+        transition: all 0.18s;
+        text-decoration: none;
+        border: 1px solid transparent;
+        height: 32px;
+    }
+
+        .btn-action svg {
+            width: 11px;
+            height: 11px;
+            flex-shrink: 0;
+        }
+
+    .btn-edit {
+        background: transparent;
+        border-color: var(--dark);
+        color: var(--dark);
+    }
+
+        .btn-edit:hover {
+            background: var(--dark);
+            color: #fff;
+        }
+
+    .btn-del {
+        background: transparent;
+        border-color: #c0392b;
+        color: #c0392b;
+    }
+
+        .btn-del:hover {
+            background: #c0392b;
+            color: #fff;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 72px 20px;
+    }
+
+    .empty-state-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 16px;
+        opacity: 0.2;
+    }
+
+    .empty-state p {
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-family: 'Raleway',sans-serif;
+        margin: 0;
+    }
+
+    .empty-state a {
+        display: inline-block;
+        margin-top: 16px;
+        color: var(--dark);
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    @@media (max-width:900px) {
+        .admin-wrapper {
+            padding: 28px 16px;
+        }
+
+        .col-author, .col-discount {
+            display: none;
+        }
+    }
+
+    @@media (max-width:640px) {
+        .col-category {
+            display: none;
+        }
+
+        .btn-action span {
+            display: none;
+        }
+
+        .btn-action {
+            padding: 7px 9px;
+        }
+    }
+</style>
+
+<div class="toast" id="toast"></div>
+
+<div class="admin-wrapper">
+
+    <div class="page-header">
+        <div>
+            <h2>Books</h2>
+            <p class="page-header-meta">@filtered.Count() @(filtered.Count() == 1 ? "book" : "books") total</p>
+        </div>
+        <a class="btn-add" href="/Admin/Book/Create">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Book
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <form method="get" action="/Admin/Book/Index">
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label>Search</label>
+                <input type="text" name="search" value="@searchVal" placeholder="Book name..." />
+            </div>
+            <div class="filter-group">
+                <label>Category</label>
+                <select name="categoryId">
+                    <option value="">All Categories</option>
+                    @foreach (var cat in categories)
+                    {
+                        <option value="@cat.CategoryId"
+                                selected="@(catFilter == cat.CategoryId.ToString() ? "selected" : null)">
+                            @cat.Name
+                        </option>
+                    }
+                </select>
+            </div>
+            <label class="filter-check-group">
+                <input type="checkbox" name="featuredOnly" value="true" @(featFilter ? "checked" : "") />
+                Featured Only
+            </label>
+            <button type="submit" class="btn-filter">Apply</button>
+            <a class="btn-filter" href="/Admin/Book/Index">Reset</a>
+        </div>
+    </form>
+
+    <!-- Table -->
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:50px">ID</th>
+                    <th style="width:56px">Cover</th>
+                    <th style="min-width:150px">Name</th>
+                    <th class="col-category">Category</th>
+                    <th class="col-author">Author</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Featured</th>
+                    <th class="col-discount">Offer</th>
+                    <th style="text-align:right; width:130px">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (filtered.Any())
+                {
+                    @foreach (var book in filtered)
+                    {
+                        <tr>
+                            <td><span class="id-badge">#@book.BookID</span></td>
+
+                            <td>
+                                @if (!string.IsNullOrEmpty(book.ImageUrl))
+                                {
+                                    <img class="book-thumb" src="@book.ImageUrl" alt="@book.Name"
+                                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+                                    <div class="book-thumb-placeholder" style="display:none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#999"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="book-thumb-placeholder">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#999"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                                    </div>
+                                }
+                            </td>
+
+                            <td><p class="book-name" title="@book.Name">@book.Name</p></td>
+
+                            <td class="col-category" style="font-family:'Raleway',sans-serif;font-size:0.85rem;color:var(--muted)">@book.CategoryName</td>
+                            <td class="col-author" style="font-family:'Raleway',sans-serif;font-size:0.85rem;color:var(--muted)">@book.AuthorName</td>
+
+                            <td class="price-cell">
+                                @if (book.DiscountPercent > 0)
+                                {
+                                    <span class="price-original">$@book.Price.ToString("0.00")</span>
+                                    <span class="price-discounted">$@((book.Price * (1 - (book.DiscountPercent ?? 0) / 100m)).ToString("0.00"))</span>
+                                }
+                                else
+                                {
+                                    <span>$@book.Price.ToString("0.00")</span>
+                                }
+                            </td>
+
+                            <td>
+                                <span class="stock-cell @(book.Stock <= 5 ? "stock-low" : "")">
+                                    @book.Stock @(book.Stock <= 5 ? "⚠" : "")
+                                </span>
+                            </td>
+
+                            <td>
+                                @if (book.IsFeatured)
+                                {
+                                    <span class="badge-featured">★ Featured</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-none">—</span>
+                                }
+                            </td>
+
+                            <td class="col-discount">
+                                @if (book.DiscountPercent > 0)
+                                {
+                                    <span class="badge-offer">@book.DiscountPercent% off</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-none">—</span>
+                                }
+                            </td>
+
+                            <td>
+                                <div class="actions">
+                                    <a class="btn-action btn-edit" href="/Admin/Book/Edit/@book.BookID">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                        <span>Edit</span>
+                                    </a>
+                                    <form method="post" action="/Admin/Book/Delete/@book.BookID" style="margin:0"
+                                          onsubmit="return confirmDelete(event, '@Html.Raw(book.Name.Replace("'", "\\'"))')">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-action btn-del">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            <span>Delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="10">
+                            <div class="empty-state">
+                                <svg class="empty-state-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#2f2f2f">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                                <p>No books found.</p>
+                                <a href="/Admin/Book/Create">Add your first book</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(e, name) {
+            if (!confirm('Delete "' + name + '"? This cannot be undone.')) {
+                e.preventDefault(); return false;
+            }
+            return true;
+        }
+        function showToast(msg, type) {
+            var t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + (type || 'success');
+            t.classList.add('show');
+            setTimeout(function(){ t.classList.remove('show'); }, 3500);
+        }
+        @if (TempData["Success"] != null)
+        {
+                <text>showToast('@TempData["Success"]','success');</text>
+        }
+        @if (TempData["Error"] != null)
+        {
+                <text>showToast('@TempData["Error"]','error');</text>
+        }
+    </script>
+}

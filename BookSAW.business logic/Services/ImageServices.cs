@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 public class ImageServices : IImageServices
 {
-    public async Task<string> SaveImage(IFormFile photo)
+    public async Task<string> SaveImage(IFormFile photo,string folderName)
     {
         if (photo == null || photo.Length == 0)
             return null;
 
-        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/categories");
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(),$"wwwroot/images/{folderName}");
 
         Directory.CreateDirectory(uploadsFolder);
 
@@ -25,10 +25,10 @@ public class ImageServices : IImageServices
             await photo.CopyToAsync(stream);
         }
 
-        return $"/images/categories/{uniqueFileName}";
+        return $"/images/{folderName}/{uniqueFileName}";
     }
 
-    public void DeleteCategoryImage(string imageUrl)
+    public void DeleteImage(string imageUrl)
     {
         if (string.IsNullOrEmpty(imageUrl))
             return;

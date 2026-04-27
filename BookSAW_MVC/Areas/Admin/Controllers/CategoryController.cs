@@ -41,7 +41,7 @@ namespace BookSAW_MVC.Areas.Admin.Controllers
 
                 if (dto.Photo != null)
             {
-                dto.ImageUrl = await imageServices.SaveImage(dto.Photo);
+                dto.ImageUrl = await imageServices.SaveImage(dto.Photo, "categories");
             }
 
             _categoryService.AddCategory(dto);
@@ -71,14 +71,7 @@ namespace BookSAW_MVC.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState
-                    .Where(x => x.Value.Errors.Count > 0)
-                    .Select(x => new
-                    {
-                        Field = x.Key,
-                        Errors = x.Value.Errors.Select(e => e.ErrorMessage)
-                    });
-
+                
                 return View(dto);
             }
 
@@ -91,9 +84,9 @@ namespace BookSAW_MVC.Areas.Admin.Controllers
             if (dto.Photo != null && dto.Photo.Length > 0)
             {
                
-                imageServices.DeleteCategoryImage(existingCategory.ImageUrl);
+                imageServices.DeleteImage(existingCategory.ImageUrl);
 
-                dto.ImageUrl =await imageServices.SaveImage(dto.Photo);
+                dto.ImageUrl =await imageServices.SaveImage(dto.Photo, "categories");
             }
             else
             {
@@ -115,7 +108,7 @@ namespace BookSAW_MVC.Areas.Admin.Controllers
 
             if (category != null)
             {
-                imageServices.DeleteCategoryImage(category.ImageUrl);
+                imageServices.DeleteImage(category.ImageUrl);
                 _categoryService.DeleteCategory(id);
             }
 

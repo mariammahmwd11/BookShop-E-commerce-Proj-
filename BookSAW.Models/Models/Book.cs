@@ -1,37 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using BookSAW.Models.Models;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
-namespace BookSAW.Models.Models
+public class Book
 {
-    public class Book
-    {
-        public int BookID { get; set; }
-        [Required]
-        [MaxLength(200)]
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string ImageURl { get; set; }
-        public double? Rate { get; set; }
-        public bool isAvailable { get; set; }
-        public int NumberOfAvaBooks { get; set; }
-        [Required]
-        public decimal Price { get; set; }
+    public int BookID { get; set; }
 
-        public bool? isOffered { get; set; }=false;
-        public bool? isFeatured { get; set; }=false;
+    [Required, MaxLength(200)]
+    public string Name { get; set; }
 
-        public int CategoryId { get; set; }
-        [ForeignKey("CategoryId")]
-        public Category Category { get; set; } = new Category();
+    public string Description { get; set; }
 
-        public int AuthorId { get; set; }
-        [ForeignKey("AuthorId")]
-        public Author Author { get; set; } = new Author();
+    public string ImageUrl { get; set; }
 
+    public double? Rate { get; set; }
 
+    public int Stock { get; set; }
 
-    }
+    public decimal Price { get; set; }
+
+    public decimal DiscountPercent { get; set; } = 0m;
+
+    public bool IsOffered => DiscountPercent > 0;
+ 
+
+    public bool IsFeatured { get; set; }
+
+    public int CategoryId { get; set; }
+    public Category Category { get; set; }
+
+    public int AuthorId { get; set; }
+    public Author Author { get; set; }
 }

@@ -34,6 +34,8 @@ namespace BookSAW_MVC
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IImageServices, ImageServices>();
+            builder.Services.AddScoped<IBookService, BookService>();
+            builder.Services.AddScoped<IAuthorService, AuthorService>();
         builder.Services.AddControllersWithViews();
           
 
@@ -59,9 +61,9 @@ namespace BookSAW_MVC
                 pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
                 );
             app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
-                .WithStaticAssets();
+     name: "default",
+     pattern: "{area=User}/{controller=HomePage}/{action=Index}/{id?}"
+ );
 
             app.Run();
         }
