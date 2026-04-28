@@ -12,7 +12,7 @@ namespace BookSAW_MVC
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +40,7 @@ namespace BookSAW_MVC
           
 
             var app = builder.Build();
+       
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -51,7 +52,7 @@ namespace BookSAW_MVC
 
             app.UseHttpsRedirection();
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseStaticFiles();
 

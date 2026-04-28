@@ -1,11 +1,14 @@
 ﻿using BookSAW.BL.DTO;
 using BookSAW.business_logic.IServices;
 using BookSAW.business_logic.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookSAW_MVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
+
     public class BookController : Controller
     {
         private readonly IBookService bookService;

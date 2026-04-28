@@ -19,10 +19,10 @@ namespace BookSAW.BL.DTO
         [Required]
         [DataType(DataType.Password)]
         [MinLength(8, ErrorMessage = "Password must be at least 8 characters")]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$",
-            ErrorMessage = "Password must contain uppercase, lowercase, number and special character")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$",
+ErrorMessage = "Password must be at least 8 characters and include uppercase, lowercase, number and special character")]
         public string Password { get; set; }
-
+       
         [Required]
         [Compare("Password", ErrorMessage = "Passwords do not match")]
         [DataType(DataType.Password)]

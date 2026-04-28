@@ -1,11 +1,13 @@
 ﻿using BookSAW.business_logic.IServices;
 using BookSAW.business_logic.Services;
 using BookSAW_MVC.Areas.User.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookSAW_MVC.Areas.User.Controllers
 {
     [Area("User")]
+    [AllowAnonymous]
     public class HomePageController : Controller
     {
         private readonly IBookService bookService;

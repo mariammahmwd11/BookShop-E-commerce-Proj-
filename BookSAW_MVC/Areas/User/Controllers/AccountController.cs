@@ -1,11 +1,13 @@
 ﻿using BookSAW.BL.DTO;
 using BookSAW.Models.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookSAW_MVC.Areas.User.Controllers
 {
     [Area("User")]
+    [AllowAnonymous]
     public class AccountController : Controller
     {
         private readonly UserManager<AppUser> userManager;
@@ -30,7 +32,7 @@ namespace BookSAW_MVC.Areas.User.Controllers
             if (ModelState.IsValid)
             {
                 var existingEmail = await userManager.FindByEmailAsync(registerDTO.Email);
-                var existingUser = await userManager.FindByEmailAsync(registerDTO.UserName);
+                var existingUser = await userManager.FindByNameAsync(registerDTO.UserName);
 
                 if (existingEmail != null)
                 {
@@ -52,8 +54,14 @@ namespace BookSAW_MVC.Areas.User.Controllers
 
                 if (result.Succeeded)
                 {
+                    await userManager.AddToRoleAsync(newUser, "User");
                     await signInManager.SignInAsync(newUser, false);
                     return RedirectToAction("Login");
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
                 }
             }
 

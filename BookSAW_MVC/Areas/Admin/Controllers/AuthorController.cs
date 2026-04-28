@@ -1,10 +1,12 @@
 ﻿using BookSAW.BL.DTO;
 using BookSAW.business_logic.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookSAW_MVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class AuthorController : Controller
     {
       
