@@ -79,7 +79,7 @@ namespace BookSAW_MVC.Areas.User.Controllers
                     if (validpassword)
                     {
                         await signInManager.SignInAsync(user, loginDTO.RememberMe);
-                        return RedirectToAction("Index", "Home", new { area = "" });
+                        return RedirectToAction("Index", "HomePage" );
                     }
                     else
                     {

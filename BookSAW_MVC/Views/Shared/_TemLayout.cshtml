@@ -20,6 +20,29 @@
 	<link rel="stylesheet" type="text/css" href="~/icomoon/icomoon.css">
 	<link rel="stylesheet" type="text/css" href="~/css/vendor.css">
 	<link rel="stylesheet" type="text/css" href="~/style.css">
+	<style>
+		.cart.for-buy {
+			position: relative;
+			display: inline-block;
+            padding: 8px 20px;
+		}
+
+		.cart-count {
+			position: absolute;
+			top: -8px;
+			right: -8px;
+			background: red;
+			color: white;
+			font-size: 11px;
+			font-weight: bold;
+			width: 18px;
+			height: 18px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			line-height: 1;
+		}</style>
 
 </head>
 
@@ -57,8 +80,12 @@
 								<a href="/User/Account/Logout" class="for-buy">
 									<i class="icon icon-logout"></i><span>Logout</span>
 								</a>
+								<a href="#">
+									<i class="icon icon-user"></i>
+								</a>
 								<a href="#" class="cart for-buy">
-									<i class="icon icon-clipboard"></i><span>Cart:(0 $)</span>
+									<i class="icon icon-clipboard"></i>
+									<span class="cart-count">0</span>
 								</a>
 							}
 							else
