@@ -12,6 +12,7 @@ namespace BookSAW.business_logic.IServices
         void addAuthor(AuthorDTO author);
         void removeAuthor(int id);
         void EditAuthor(AuthorDTO author);
+        IEnumerable<AuthorDTO> GetRecent5Authors();
 
     }
 }

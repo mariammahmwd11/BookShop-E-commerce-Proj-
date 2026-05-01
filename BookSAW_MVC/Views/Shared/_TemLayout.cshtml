@@ -1,4 +1,7 @@
 ﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -45,9 +48,35 @@
 		}</style>
 
 </head>
+<script>
+function addToCart(bookId) {
+    fetch('/Cart/AddToCart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ bookId: bookId })
+    })
+    .then(res => {
+        if (res.ok) {
+            updateCartCount();
+        }
+    });
+}
+
+function updateCartCount() {
+    fetch('/Cart/GetCount')
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("cartCount").innerText = data.count;
+    });
+}
+</script>
 
 <body data-bs-spy="scroll" data-bs-target="#header" tabindex="0">
-
+	<form id="__AjaxTokenForm" method="post" style="display:none">
+		@Html.AntiForgeryToken()
+	</form>
 	<div id="header-wrap">
 
 		<div class="top-content">
@@ -83,9 +112,11 @@
 								<a href="#">
 									<i class="icon icon-user"></i>
 								</a>
-								<a href="#" class="cart for-buy">
+								<a asp-area="User" asp-controller="Cart" asp-action="Index" class="cart for-buy">
 									<i class="icon icon-clipboard"></i>
-									<span class="cart-count">0</span>
+									<span id="cartCount" class="cart-count">
+										@(ViewBag.CartCount ?? 0)
+									</span>
 								</a>
 							}
 							else
@@ -99,18 +130,6 @@
 							}
 							
 
-							<div class="action-menu">
-
-								<div class="search-bar">
-									<a href="#" class="search-button search-toggle" data-selector="#header-wrap">
-										<i class="icon icon-search"></i>
-									</a>
-									<form role="search" method="get" class="search-box">
-										<input class="search-field text search-input" placeholder="Search"
-											   type="search">
-									</form>
-								</div>
-							</div>
 
 						</div><!--top-right-->
 					</div>
@@ -341,5 +360,6 @@
 	<script src="~/js/plugins.js"></script>
 	<script src="~/js/script.js"></script>
 </body>
+
 
 </html>

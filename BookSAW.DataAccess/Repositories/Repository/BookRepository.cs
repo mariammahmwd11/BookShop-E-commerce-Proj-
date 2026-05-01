@@ -52,5 +52,14 @@ namespace BookSAW.DataAccess.Repositories.Repository
             
             return books;
         }
+
+        IEnumerable<Book> IBookRepository.GetTop5Books()
+        {
+            var books= appDbContext.Books.OrderByDescending(b => b.BookID).Take(5)
+                .Include(b => b.Author)
+                .Include(b => b.Category)
+                .ToList();
+            return books;
+        }
     }
 }

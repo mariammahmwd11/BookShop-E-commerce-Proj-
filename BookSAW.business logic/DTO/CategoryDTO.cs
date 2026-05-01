@@ -15,4 +15,6 @@ public class CategoryDTO
     public IFormFile? Photo { get; set; }
 
     public string? ImageUrl { get; set; }
+    public int? DisplayOrder { get; set; }
+    public int BookCount { get; set; }
 }

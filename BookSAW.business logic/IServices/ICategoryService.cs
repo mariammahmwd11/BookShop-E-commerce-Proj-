@@ -1,4 +1,5 @@
-﻿using BookSAW.Models.Models;
+﻿using BookSAW.BL.DTO;
+using BookSAW.Models.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,8 +13,10 @@ namespace BookSAW.business_logic.IServices
         void AddCategory(CategoryDTO categoryDTO);
         void UpdateCategory(CategoryDTO categoryDTO);
         bool DeleteCategory(int id);
+        IEnumerable<CategoryDTO> GetRecent5lCategories();
 
-   
+
+
 
     }
 }

@@ -87,6 +87,8 @@ namespace BookSAW_MVC.Areas.User.Controllers
                     if (validpassword)
                     {
                         await signInManager.SignInAsync(user, loginDTO.RememberMe);
+                        user.LastLogin = DateTime.Now;
+                        await userManager.UpdateAsync(user);
                         return RedirectToAction("Index", "HomePage" );
                     }
                     else

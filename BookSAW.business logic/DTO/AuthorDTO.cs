@@ -16,5 +16,6 @@ namespace BookSAW.BL.DTO
         public IFormFile? Photo { get; set; }
 
         public string? ImageURl { get; set; }
+        public int? BookCount { get; set; }
     }
 }

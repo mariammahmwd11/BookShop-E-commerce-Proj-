@@ -30,5 +30,7 @@ namespace BookSAW.BL.DTO
         public int AuthorId { get; set; }
         public string? CategoryName { get; set; }
         public string? AuthorName { get; set; }
+        public int? DisplayOrder { get; set; }
+        public  int BookCount { get; set; }
     }
 }

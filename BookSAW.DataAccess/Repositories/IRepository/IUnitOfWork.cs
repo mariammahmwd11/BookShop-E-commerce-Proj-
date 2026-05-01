@@ -10,6 +10,7 @@ namespace BookSAW.DataAccess.Repositories.IRepositories
          ICategoryRepository Category { get; }
          IBookRepository Book { get; }
         IAuthorRepository Author { get; }
+        ICartRepository Cart { get; }
             void Save();
     }
 }

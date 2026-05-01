@@ -7,5 +7,6 @@ namespace BookSAW.DataAccess.Repositories.IRepository
 {
     public interface IAuthorRepository:IBasicRepository<Author>
     {
+        IEnumerable<Author> GetTop5Authors();
     }
 }

@@ -15,12 +15,15 @@ namespace BookSAW.DataAccess.Repositories.Repository
         public IBookRepository Book { get; private set; }
 
        public IAuthorRepository Author { get; private set; }
+       public ICartRepository Cart { get; private set; }
+
 
         public UnitOfWork( AppDbContext appDbContext) {
             this.appDbContext = appDbContext;
             Category = new CategoryRepository(appDbContext);
             Book=new BookRepository(appDbContext);
             Author = new AuthorRepository(appDbContext);
+            Cart = new CartRepository(appDbContext);
         }
 
         public void Save()

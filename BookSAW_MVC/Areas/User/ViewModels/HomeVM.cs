@@ -8,5 +8,7 @@ namespace BookSAW_MVC.Areas.User.ViewModels
         public IEnumerable<BookDTO> OfferedBooks { get; set; }
         public IEnumerable<BookDTO> AllBooks { get; set; }
         public IEnumerable<CategoryDTO> Categories { get; set; }
+        
+        public HashSet<int> CartBookIds { get; set; } = new HashSet<int>();
     }
 }

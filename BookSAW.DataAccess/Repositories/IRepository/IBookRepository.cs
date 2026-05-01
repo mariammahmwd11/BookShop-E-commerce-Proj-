@@ -10,5 +10,6 @@ namespace BookSAW.DataAccess.Repositories.IRepository
         Book GetByIdWithAuthorAndCategory(int id);
         IEnumerable<Book> GetAllFeaturedBooks();
         IEnumerable<Book> GetAllOfferedBooks();
+        IEnumerable<Book> GetTop5Books();
     }
 }

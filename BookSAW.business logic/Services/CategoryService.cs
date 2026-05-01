@@ -1,5 +1,7 @@
-﻿using BookSAW.business_logic.IServices;
+﻿using BookSAW.BL.DTO;
+using BookSAW.business_logic.IServices;
 using BookSAW.DataAccess.Repositories.IRepositories;
+using BookSAW.DataAccess.Repositories.Repository;
 using BookSAW.Models.Models;
 using System;
 using System.Collections.Generic;
@@ -84,6 +86,25 @@ namespace BookSAW.business_logic.Services
                 _unitOfWork.Category.Update(category);
                 _unitOfWork.Save();
             }
+        }
+
+        IEnumerable<CategoryDTO> ICategoryService.GetRecent5lCategories()
+        {
+            var categories = _unitOfWork.Category.GetTop5Categories();
+            return categories.Select(b => new CategoryDTO
+            {
+                CategoryId = b.Id,
+                ImageUrl = b.ImageUrl,
+                Name = b.Name,
+                Description = b.Description,
+                BookCount = b.Books.Count(),
+                DisplayOrder = b.DisplayOrder
+                
+
+
+
+            }).ToList();
+
         }
     }
 }

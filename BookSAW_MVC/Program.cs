@@ -36,6 +36,8 @@ namespace BookSAW_MVC
             builder.Services.AddScoped<IImageServices, ImageServices>();
             builder.Services.AddScoped<IBookService, BookService>();
             builder.Services.AddScoped<IAuthorService, AuthorService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<ICartService, CartService>();
         builder.Services.AddControllersWithViews();
           
 
@@ -51,10 +53,12 @@ namespace BookSAW_MVC
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
             app.UseRouting();
+
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseStaticFiles();
 
             app.MapStaticAssets();
             app.MapControllerRoute(

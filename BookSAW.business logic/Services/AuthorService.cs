@@ -78,5 +78,18 @@ namespace BookSAW.business_logic.Services
            unitOfWork.Author.Delete(id);
             unitOfWork.Save();
         }
+
+        IEnumerable<AuthorDTO> IAuthorService.GetRecent5Authors()
+        {
+           var authors= unitOfWork.Author.GetTop5Authors();
+            return authors.Select(a => new AuthorDTO
+            {
+                Id = a.Id,
+                Bio = a.Bio,
+                Name = a.Name,
+                ImageURl = a.ImageURl,
+                BookCount = a.Books.Count()
+            });
+        }
     }
 }

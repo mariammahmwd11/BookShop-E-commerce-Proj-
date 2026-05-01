@@ -1,6 +1,7 @@
 ﻿@using BookSAW.BL.DTO
 @using BookSAW_MVC.Areas.User.ViewModels
 @model HomeVM
+
 <style>
     .product-item figure.product-style {
         height: 280px;
@@ -28,7 +29,7 @@
         justify-content: center;
     }
 
-    /* Price styling */
+    /* ── Price styling ── */
     .item-price {
         display: flex;
         align-items: center;
@@ -47,8 +48,108 @@
         color: #e74c3c;
         font-weight: bold;
     }
+
+    /* ══════════════════════════════════════════════
+               ADD TO CART BUTTON — two states
+            ═════════════════════════════════════════════ */
+
+    button.add-to-cart {
+        transition: background 0.25s ease, transform 0.15s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        button.add-to-cart.in-cart {
+            background: #4a7c59 !important;
+            color: #fff !important;
+            cursor: default;
+            pointer-events: none;
+            opacity: 0.92;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+            button.add-to-cart.in-cart::before {
+                content: '✓';
+                font-size: 0.95em;
+                font-weight: 700;
+            }
+
+        /* Loading Spinner inside button */
+        button.add-to-cart .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            margin-right: 6px;
+        }
+
+        button.add-to-cart.loading .btn-text {
+            display: none;
+        }
+
+        button.add-to-cart.loading .spinner {
+            display: inline-block;
+        }
+
+    @@keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* 🍞 Toast Notification */
+    .cart-toast {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        background: #fff;
+        color: #2f2f2f;
+        padding: 14px 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(47,47,47,0.15);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        z-index: 9999;
+        animation: slideInToast 0.3s ease;
+        border-left: 4px solid #4a7c59;
+        max-width: 320px;
+    }
+
+        .cart-toast.error {
+            border-left-color: #c0392b;
+        }
+
+            .cart-toast.error svg {
+                color: #c0392b;
+            }
+
+        .cart-toast.success svg {
+            color: #27ae60;
+        }
+
+    @@keyframes slideInToast {
+        from {
+            opacity: 0;
+            transform: translateX(100px) translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0) translateY(0);
+        }
+    }
 </style>
-<section id="featured-books" class="py-5 my-5">
+
+<section id="offer-books" class="py-5 my-5">
     <div class="container">
         <div class="row">
             <div class="col-md-12">
@@ -60,13 +161,17 @@
 
                 <div class="product-list" data-aos="fade-up">
                     <div class="row">
+
                         @foreach (var book in Model.OfferedBooks)
                         {
+                            var inCart = Model.CartBookIds.Contains(book.BookID);
+                            var btnClass = inCart ? "add-to-cart in-cart" : "add-to-cart";
+                            var btnText = inCart ? "Added to Cart" : "Add to Cart";
+
                             <div class="col-md-3 reveal-on-scroll delay-@((Model.OfferedBooks.ToList().IndexOf(book) % 4) + 1)">
                                 <div class="product-item">
                                     <figure class="product-style">
 
-                                        @* Cover image or placeholder *@
                                         @if (!string.IsNullOrEmpty(book.ImageUrl))
                                         {
                                             <img src="@book.ImageUrl" alt="@book.Name" class="product-item"
@@ -83,38 +188,48 @@
                                             </div>
                                         }
 
+                                        @* ── Add to Cart Section ── *@
+                                        <div class="add-to-cart-wrapper" data-book-id="@book.BookID">
+                                            @if (!inCart)
+                                            {
+                                                <button type="button"
+                                                        class="@btnClass"
+                                                        onclick="handleAddToCart('@book.BookID', this)">
+                                                    <span class="spinner"></span>
+                                                    <span class="btn-text">@btnText</span>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="button" class="@btnClass" disabled>
+                                                    @btnText
+                                                </button>
+                                            }
+                                        </div>
 
-
-                                        <form method="post" action="/Cart/Add" style="display:contents">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="bookId" value="@book.BookID" />
-                                            <button type="submit" class="add-to-cart" data-product-tile="add-to-cart">
-                                                Add to Cart
-                                            </button>
-                                        </form>
                                     </figure>
 
                                     <figcaption>
                                         <h3>
-                                            <a href="/Books/Details/@book.BookID"
-                                               style="text-decoration:none;color:inherit;">@book.Name</a>
+                                            <a asp-area="User"
+                                               asp-controller="Book"
+                                               asp-action="Index"
+                                               style="text-decoration:none;color:inherit;">
+                                                @book.Name
+                                            </a>
                                         </h3>
                                         <span>@book.AuthorName</span>
+
                                         <div class="item-price">
-
-
                                             @{
                                                 var finalPrice = book.Price * (1 - book.DiscountPercent / 100m);
                                             }
 
-
-                                                <span class="prev-price">$@book.Price.ToString("0.00")</span>
-
-                                                @("$" + finalPrice?.ToString("0.00"))
-                                            
-
+                                            <span class="prev-price">$@book.Price.ToString("0.00")</span>
+                                            <span>$@finalPrice?.ToString("0.00")</span>
                                         </div>
                                     </figcaption>
+
                                 </div>
                             </div>
                         }
@@ -122,58 +237,169 @@
                         @if (!Model.OfferedBooks.Any())
                         {
                             <div class="col-12 text-center py-5" style="color:#999;font-style:italic;">
-                                No featured books yet — check back soon.
+                                No books on offer yet — check back soon.
                             </div>
                         }
+
                     </div>
                 </div>
-
-
-
 
             </div>
         </div>
     </div>
 </section>
+
 <!-- ════════════════════════════════════
-     JS — Sticky nav + Scroll reveal
+     JS - AJAX Handler + Existing Scripts
 ════════════════════════════════════ -->
 <script>
-    /* Sticky nav */
-    (function() {
+    /* Sticky nav & Scroll reveal */
+    (function () {
         var header = document.querySelector('header, .site-header, nav.navbar');
         if (!header) return;
-        window.addEventListener('scroll', function() {
+        window.addEventListener('scroll', function () {
             header.classList.toggle('nav-scrolled', window.scrollY > 60);
         }, { passive: true });
     })();
 
-    /* Scroll reveal via Intersection Observer */
-    (function() {
+    (function () {
         var els = document.querySelectorAll('.reveal-on-scroll');
         if (!els.length) return;
-        var observer = new IntersectionObserver(function(entries) {
-            entries.forEach(function(e) {
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
                 if (e.isIntersecting) {
                     e.target.classList.add('is-visible');
                     observer.unobserve(e.target);
                 }
             });
         }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
-        els.forEach(function(el) { observer.observe(el); });
+        els.forEach(function (el) { observer.observe(el); });
     })();
 
-    /* Add-to-Cart feedback */
-    document.querySelectorAll('.add-to-cart').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            var orig = btn.textContent;
-            btn.textContent = '✓ Added';
-            btn.style.background = '#4a7c59';
-            setTimeout(function() {
-                btn.textContent = orig;
-                btn.style.background = '';
-            }, 1800);
-        });
-    });
-</script>
+    /* ════════════════════════════════════
+       AJAX Add to Cart Handler
+       ════════════════════════════════════ */
+    async function handleAddToCart(bookId, btn) {
+        if (btn.disabled || btn.classList.contains('in-cart') || btn.classList.contains('loading')) return;
 
+        const btnText = btn.querySelector('.btn-text');
+        const originalText = btnText ? btnText.textContent : '';
+
+        try {
+            btn.disabled = true;
+            btn.classList.add('loading');
+
+            // 1. جلب التوكن من الـ form المخفي
+            const tokenInput = document.querySelector('#__AjaxTokenForm input[name="__RequestVerificationToken"]');
+            if (!tokenInput) {
+                console.error('Anti-Forgery Token not found!');
+                showToast('⚠️ خطأ في التحقق الأمني. يرجى تحديث الصفحة.', 'error');
+                btn.disabled = false;
+                btn.classList.remove('loading');
+                return;
+            }
+            const token = tokenInput.value;
+
+            // 2. إرسال الطلب مع التوكن في الهيدر
+            const response = await fetch('/User/Cart/AddToCart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                },
+                body: `bookId=${encodeURIComponent(bookId)}`
+            });
+
+            // 3. كشف لو حصل ريديركت للوجن
+            const contentType = response.headers.get('content-type') || '';
+            const isRedirectToLogin = response.url.includes('/Login') || !contentType.includes('application/json');
+
+            if (isRedirectToLogin) {
+                window.location.href = '/User/Account/Login?returnUrl=' + encodeURIComponent(window.location.href);
+                return;
+            }
+
+            // 4. معالجة الاستجابة
+            if (response.ok) {
+                const result = await response.json();
+
+                if (!result.isAuthenticated) {
+                    window.location.href = result.loginUrl || '/User/Account/Login';
+                    return;
+                }
+
+                if (result.success) {
+                    btn.classList.remove('loading');
+                    btn.classList.add('in-cart');
+                    btn.disabled = true;
+                    btn.innerHTML = 'Added to Cart';
+                    showToast('✅ Added to cart successfully!', 'success');
+                    refreshCartCount(); // ✅ دلوقتي هتشتغل
+                } else {
+                    throw new Error(result.message || 'Server error');
+                }
+            } else {
+                throw new Error('HTTP ' + response.status);
+            }
+
+        } catch (error) {
+            console.error('Add to cart error:', error);
+            btn.classList.remove('loading');
+            btn.disabled = false;
+            if (btnText) btnText.textContent = originalText;
+            showToast('⚠️ ' + (error.message || 'Could not add to cart.'), 'error');
+        }
+    }
+
+    /* 🍞 Toast Notification Helper */
+    function showToast(message, type = 'success') {
+        document.querySelectorAll('.cart-toast').forEach(t => t.remove());
+
+        const toast = document.createElement('div');
+        toast.className = `cart-toast ${type}`;
+
+        const icon = type === 'success'
+            ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`
+            : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+
+        toast.innerHTML = `${icon}<span>${message}</span>`;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-10px)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    /* 🔄 Update Cart Count - Incremental */
+    function updateCartCount(increment = 1) {
+        const selectors = ['#cartCountPill', '.cart-count-pill', '[id*="cartCount"]'];
+
+        for (const selector of selectors) {
+            const el = document.querySelector(selector);
+            if (el) {
+                const text = el.textContent;
+                const match = text.match(/(\d+)/);
+                if (match) {
+                    const current = parseInt(match[1]);
+                    el.textContent = text.replace(/\d+/, current + increment);
+                }
+                break;
+            }
+        }
+    } // ✅ هنا كان ناقص القوس!
+
+    /* 🔄 Refresh Cart Count from Server */
+    function refreshCartCount() {
+        fetch('/User/Cart/GetCount')
+            .then(res => res.json())
+            .then(data => {
+                const el = document.getElementById("cartCount");
+                if (el) {
+                    el.innerText = data.count;
+                }
+            })
+            .catch(err => console.error('Failed to refresh cart count:', err));
+    }
+</script>

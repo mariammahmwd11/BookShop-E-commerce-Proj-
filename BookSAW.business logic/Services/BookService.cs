@@ -191,5 +191,23 @@ namespace BookSAW.business_logic.Services
                 DiscountPercent = b.DiscountPercent
             });
         }
+
+        IEnumerable<BookDTO> IBookService.GetRecent5lBooks()
+        {
+           var books= unitOfWork.Book.GetTop5Books();
+            return books.Select(b => new BookDTO
+            {
+                BookID = b.BookID,
+                ImageUrl= b.ImageUrl,
+                Name = b.Name,
+                Description = b.Description,
+                AuthorName = b.Author?.Name,
+                CategoryName = b.Category?.Name,
+                Price = b.Price
+
+
+            }).ToList();
+            
+        }
     }
 }

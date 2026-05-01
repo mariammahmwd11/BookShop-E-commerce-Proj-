@@ -9,6 +9,7 @@ namespace BookSAW.DataAccess.Repositories.IRepositories
 {
     public interface ICategoryRepository:IBasicRepository<Category>
     {
-        
+        IEnumerable<Category> GetTop5Categories();
+
     }
 }

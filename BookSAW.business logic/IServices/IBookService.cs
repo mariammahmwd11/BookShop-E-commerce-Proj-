@@ -10,6 +10,7 @@ namespace BookSAW.business_logic.IServices
         IEnumerable<BookDTO> GetAll();
         IEnumerable<BookDTO> GetAllFeaturedBooks();
         IEnumerable<BookDTO> GetAllOfferd();
+        IEnumerable<BookDTO> GetRecent5lBooks();
         BookDTO GetById(int Id);
         void creat(BookDTO book);
         void Update(BookDTO book);
@@ -17,6 +18,7 @@ namespace BookSAW.business_logic.IServices
         void togglefeature(int Id);
         void ToggleOffer(int bookId, int discountPercent);
         void UpdateStock(int Id,int newStock);
+        
 
 
     }

@@ -1,0 +1,890 @@
+﻿@model BookSAW.business_logic.DTO.User.UsersListDTO
+@{
+    ViewData["Title"] = "Users Management";
+    ViewContext.RouteData.Values["area"] = "Admin";
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+}
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+    }
+
+    :root {
+        --accent: #C5A992;
+        --accent-lt: #e8d9ce;
+        --dark: #2f2f2f;
+        --light-bg: #F3F2EC;
+        --muted: #757575;
+        --border: #E0E0E0;
+        --danger: #c0392b;
+        --success: #27ae60;
+        --warning: #e67e22;
+    }
+
+    .admin-wrapper {
+        padding: 48px 40px;
+        background: var(--light-bg);
+        min-height: 80vh;
+        font-family: 'Raleway', sans-serif;
+    }
+
+    /* ── Breadcrumb ── */
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 28px;
+        font-size: .78rem;
+        color: var(--muted);
+    }
+
+        .breadcrumb a {
+            color: var(--muted);
+            text-decoration: none;
+            transition: color .2s;
+        }
+
+            .breadcrumb a:hover {
+                color: var(--dark);
+            }
+
+    .breadcrumb-sep {
+        width: 14px;
+        height: 14px;
+        opacity: .4;
+        flex-shrink: 0;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        padding-bottom: 22px;
+        border-bottom: 1px solid var(--border);
+    }
+
+        .page-header h2 {
+            font-family: 'Prata',serif;
+            font-size: 1.8rem;
+            color: var(--dark);
+            font-weight: 400;
+            margin: 0 0 5px;
+        }
+
+    .page-header-meta {
+        font-size: .78rem;
+        color: var(--muted);
+        margin: 0;
+    }
+
+    .btn-create {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 22px;
+        background: var(--dark);
+        color: #fff;
+        border: none;
+        font-family: 'Raleway', sans-serif;
+        font-size: .78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background .25s;
+        text-decoration: none;
+        flex-shrink: 0;
+        margin-top: 4px;
+    }
+
+        .btn-create:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-create svg {
+            width: 14px;
+            height: 14px;
+        }
+
+    /* ── Stats strip ── */
+    .stats-strip {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .strip-card {
+        background: #fff;
+        border-radius: 6px;
+        padding: 16px 22px;
+        box-shadow: 0 2px 10px rgba(0,0,0,.05);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+    }
+
+    .strip-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: var(--light-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+        .strip-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--accent);
+        }
+
+    .strip-val {
+        font-family: 'Prata',serif;
+        font-size: 1.4rem;
+        color: var(--dark);
+        line-height: 1;
+    }
+
+    .strip-lbl {
+        font-size: .68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .09em;
+        color: var(--muted);
+        margin-top: 3px;
+    }
+
+    /* ── Table card ── */
+    .table-card {
+        background: #fff;
+        border-radius: 6px;
+        box-shadow: 0 2px 16px rgba(0,0,0,.06);
+        overflow: hidden;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: #EDEBE4;
+    }
+
+        thead th {
+            padding: 13px 18px;
+            font-size: .66rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+            thead th:first-child {
+                padding-left: 24px;
+            }
+
+            thead th.th-right {
+                text-align: right;
+                padding-right: 24px;
+            }
+
+    tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: background .15s;
+    }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: #fafaf8;
+        }
+
+        tbody tr.is-locked {
+            background: #fff8f7;
+        }
+
+            tbody tr.is-locked:hover {
+                background: #fff2f0;
+            }
+
+    tbody td {
+        padding: 15px 18px;
+        font-size: .87rem;
+        color: var(--dark);
+        vertical-align: middle;
+    }
+
+        tbody td:first-child {
+            padding-left: 24px;
+        }
+
+        tbody td:last-child {
+            padding-right: 24px;
+        }
+
+    /* ── Avatar ── */
+    .avatar-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Prata', serif;
+        font-size: .88rem;
+        color: #fff;
+        flex-shrink: 0;
+        background: var(--accent);
+    }
+
+        .avatar.admin-av {
+            background: var(--dark);
+        }
+
+        .avatar.locked-av {
+            background: #c0392b;
+        }
+
+    .user-name {
+        font-weight: 700;
+        color: var(--dark);
+        font-size: .88rem;
+    }
+
+    .user-id {
+        font-size: .68rem;
+        color: #bbb;
+        margin-top: 2px;
+        font-family: monospace;
+    }
+
+    /* ── Email confirmed ── */
+    .conf-dot {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: .78rem;
+    }
+
+    .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+        .dot.yes {
+            background: var(--success);
+        }
+
+        .dot.no {
+            background: #ddd;
+        }
+
+    /* ── Role badges ── */
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        font-size: .64rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        padding: 3px 9px;
+        border-radius: 3px;
+        margin-right: 4px;
+        margin-bottom: 2px;
+        white-space: nowrap;
+    }
+
+        .role-badge.admin {
+            background: #f0e8e1;
+            color: #8a5c3a;
+            border: 1px solid #dcc9b8;
+        }
+
+        .role-badge.user {
+            background: #edf7f1;
+            color: #1e7e45;
+            border: 1px solid #b7dfca;
+        }
+
+        .role-badge.other {
+            background: #eef2fb;
+            color: #3b5ac0;
+            border: 1px solid #bdc8ef;
+        }
+
+    /* ── Status badge ── */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: .68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        padding: 4px 10px;
+        border-radius: 3px;
+    }
+
+        .status-badge.active {
+            background: #edf7f1;
+            color: #1e7e45;
+            border: 1px solid #b7dfca;
+        }
+
+        .status-badge.locked {
+            background: #fdf0ef;
+            color: var(--danger);
+            border: 1px solid #f5c6c2;
+        }
+
+        .status-badge svg {
+            width: 10px;
+            height: 10px;
+        }
+
+    /* ── Actions dropdown ── */
+    .actions-wrap {
+        position: relative;
+        display: inline-block;
+    }
+
+    .btn-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 7px 13px;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--dark);
+        font-family: 'Raleway', sans-serif;
+        font-size: .7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all .18s;
+    }
+
+        .btn-actions:hover {
+            border-color: var(--dark);
+            background: var(--dark);
+            color: #fff;
+        }
+
+        .btn-actions svg {
+            width: 11px;
+            height: 11px;
+        }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: calc(100% + 6px);
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        box-shadow: 0 8px 28px rgba(0,0,0,.12);
+        min-width: 200px;
+        z-index: 100;
+        overflow: hidden;
+    }
+
+        .dropdown-menu.open {
+            display: block;
+        }
+
+    .dd-label {
+        padding: 10px 16px 6px;
+        font-size: .62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        color: #bbb;
+    }
+
+    .dd-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 4px 0;
+    }
+
+    .dd-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 10px 16px;
+        background: none;
+        border: none;
+        font-family: 'Raleway', sans-serif;
+        font-size: .8rem;
+        font-weight: 600;
+        color: var(--dark);
+        text-align: left;
+        cursor: pointer;
+        transition: background .15s;
+        text-decoration: none;
+    }
+
+        .dd-item:hover {
+            background: var(--light-bg);
+        }
+
+        .dd-item.danger {
+            color: var(--danger);
+        }
+
+            .dd-item.danger:hover {
+                background: #fff5f5;
+            }
+
+        .dd-item.promote {
+            color: #8a5c3a;
+        }
+
+            .dd-item.promote:hover {
+                background: #f9f3ee;
+            }
+
+        .dd-item svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+    /* ── Empty state ── */
+    .empty-state {
+        text-align: center;
+        padding: 64px 20px;
+        color: var(--muted);
+        font-size: .9rem;
+    }
+
+    .empty-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 16px;
+        opacity: .18;
+    }
+
+    /* ── Toast ── */
+    .toast {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        z-index: 9999;
+        padding: 14px 22px;
+        font-family: 'Raleway',sans-serif;
+        font-size: .85rem;
+        font-weight: 600;
+        color: #fff;
+        border-radius: 2px;
+        box-shadow: 0 4px 20px rgba(0,0,0,.15);
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity .3s,transform .3s;
+        pointer-events: none;
+        max-width: 340px;
+    }
+
+        .toast.success {
+            background: var(--dark);
+            border-left: 4px solid var(--accent);
+        }
+
+        .toast.error {
+            background: var(--danger);
+            border-left: 4px solid #922b21;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    @@media (max-width:1100px) {
+        .stats-strip {
+            flex-wrap: wrap;
+        }
+
+        .strip-card {
+            min-width: 140px;
+        }
+    }
+
+    @@media (max-width:768px) {
+        .admin-wrapper {
+            padding: 24px 16px;
+        }
+
+        .col-phone, .col-email {
+            display: none;
+        }
+    }
+
+    @@media (max-width:560px) {
+        .page-header {
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .col-status {
+            display: none;
+        }
+    }
+</style>
+
+<div class="toast" id="toast"></div>
+
+<div class="admin-wrapper">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="/Admin/Users/Dashboard">Dashboard</a>
+        <svg class="breadcrumb-sep" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        <span>Users</span>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h2>Users Management</h2>
+            <p class="page-header-meta">
+                Manage all registered users, roles, and access.
+            </p>
+        </div>
+        <a class="btn-create" href="/Admin/Users/CreateUser">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+            </svg>
+            Create User
+        </a>
+    </div>
+
+    <!-- Stats Strip -->
+    @{
+        var totalUsers = Model.Users.Count;
+        var adminCount = Model.Users.Count(u => u.IsAdmin);
+        var lockedCount = Model.Users.Count(u => u.IsLockedOut);
+        var confirmedCount = Model.Users.Count(u => u.EmailConfirmed);
+    }
+    <div class="stats-strip">
+        <div class="strip-card">
+            <div class="strip-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            </div>
+            <div>
+                <div class="strip-val">@totalUsers</div>
+                <div class="strip-lbl">Total Users</div>
+            </div>
+        </div>
+        <div class="strip-card">
+            <div class="strip-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+            </div>
+            <div>
+                <div class="strip-val">@adminCount</div>
+                <div class="strip-lbl">Admins</div>
+            </div>
+        </div>
+        <div class="strip-card">
+            <div class="strip-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+            </div>
+            <div>
+                <div class="strip-val">@confirmedCount</div>
+                <div class="strip-lbl">Confirmed</div>
+            </div>
+        </div>
+        <div class="strip-card">
+            <div class="strip-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <div>
+                <div class="strip-val">@lockedCount</div>
+                <div class="strip-lbl">Locked</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding-left:24px">User</th>
+                    <th class="col-email">Email</th>
+                    <th>Roles</th>
+                    <th class="col-status">Status</th>
+                  
+                  
+                    
+                    <th class="th-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Users.Any())
+                {
+                    @foreach (var u in Model.Users)
+                    {
+                        var initials = u.UserName.Length >= 2
+                        ? u.UserName[..2].ToUpper()
+                        : u.UserName.ToUpper();
+                        var avClass = u.IsLockedOut ? "locked-av" : u.IsAdmin ? "admin-av" : "";
+                        var rowClass = u.IsLockedOut ? "is-locked" : "";
+                        var isSelf = u.Id == currentUserId;
+
+                        <tr class="@rowClass">
+                            <!-- User -->
+                            <td style="padding-left:24px">
+                                <div class="avatar-cell">
+                                    <div class="avatar @avClass">@initials</div>
+                                    <div>
+                                        <div class="user-name">
+                                            @u.UserName
+                                            @if (isSelf)
+                                            {
+                                                <span style="font-size:.62rem;color:var(--accent);margin-left:6px;font-weight:700">(you)</span>
+                                            }
+                                        </div>
+                                        <div class="user-id">@u.Id[..8]…</div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Email -->
+                            <td class="col-email">
+                                <div class="conf-dot">
+                                    <span class="dot @(u.EmailConfirmed ? "yes" : "no")"></span>
+                                    <span style="color:var(--muted);font-size:.83rem">@u.Email</span>
+                                </div>
+                            </td>
+
+                            <!-- Roles -->
+                            <td>
+                                <div style="display:flex;flex-wrap:wrap;gap:4px">
+                                    @if (u.Roles.Any())
+                                    {
+                                        @foreach (var r in u.Roles)
+                                        {
+                                            var rc = r.ToUpper() == "ADMIN" ? "admin" : r.ToUpper() == "USER" ? "user" : "other";
+                                            <span class="role-badge @rc">@r</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span style="font-size:.78rem;color:#ccc;font-style:italic">No roles</span>
+                                    }
+                                </div>
+                            </td>
+
+                            <!-- Status -->
+                            <td class="col-status">
+                                @if (u.IsLockedOut)
+                                {
+                                    <span class="status-badge locked">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                        Locked
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge active">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Active
+                                    </span>
+                                }
+                            </td>
+
+                           
+                           
+
+                            <!-- Actions dropdown -->
+                            <td style="padding-right:24px">
+                                <div class="actions-wrap" style="float:right">
+                                    <button class="btn-actions" onclick="toggleDropdown(this)">
+                                        Actions
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                    <div class="dropdown-menu">
+
+                                        <div class="dd-label">Manage</div>
+
+                                        <a class="dd-item" href="/Admin/Users/ManageRoles/@u.Id">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                            Manage Roles
+                                        </a>
+
+                                        @if (!u.IsAdmin && !isSelf)
+                                        {
+                                            <div class="dd-divider"></div>
+                                            <div class="dd-label">Promote</div>
+                                            <form method="post" action="/Admin/Users/PromoteToAdmin" style="margin:0"
+                                                  onsubmit="return confirm('Promote @u.UserName to Admin?')">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="userId" value="@u.Id" />
+                                                <input type="hidden" name="userName" value="@u.UserName" />
+                                                <button type="submit" class="dd-item promote">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                                    </svg>
+                                                    Promote to Admin
+                                                </button>
+                                            </form>
+                                        }
+
+                                        @if (u.IsAdmin && !isSelf)
+                                        {
+                                            <div class="dd-divider"></div>
+                                            <form method="post" action="/Admin/Users/DemoteFromAdmin" style="margin:0"
+                                                  onsubmit="return confirm('Remove Admin role from @u.UserName?')">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="userId" value="@u.Id" />
+                                                <input type="hidden" name="userName" value="@u.UserName" />
+                                                <button type="submit" class="dd-item danger">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    Remove Admin
+                                                </button>
+                                            </form>
+                                        }
+
+                                        @if (!isSelf)
+                                        {
+                                            <div class="dd-divider"></div>
+                                            <form method="post" action="/Admin/Users/ToggleLockout" style="margin:0">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="userId" value="@u.Id" />
+                                                <input type="hidden" name="userName" value="@u.UserName" />
+                                                <button type="submit" class="dd-item @(u.IsLockedOut ? "" : "danger")">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        @if (u.IsLockedOut)
+                                                        {
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                        }
+                                                    </svg>
+                                                    @(u.IsLockedOut ? "Unlock Account" : "Lock Account")
+                                                </button>
+                                            </form>
+
+                                            <div class="dd-divider"></div>
+                                            <form method="post" action="/Admin/Users/DeleteUser" style="margin:0"
+                                                  onsubmit="return confirm('Permanently delete @u.UserName? This cannot be undone.')">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@u.Id" />
+                                                <button type="submit" class="dd-item danger">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                    Delete User
+                                                </button>
+                                            </form>
+                                        }
+
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#2f2f2f">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                <p>No users found.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        // ── Dropdown toggle ──
+        function toggleDropdown(btn) {
+            var menu = btn.nextElementSibling;
+            var isOpen = menu.classList.contains('open');
+            // close all others
+            document.querySelectorAll('.dropdown-menu.open').forEach(function(m){ m.classList.remove('open'); });
+            if (!isOpen) menu.classList.add('open');
+        }
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.actions-wrap'))
+                document.querySelectorAll('.dropdown-menu.open').forEach(function(m){ m.classList.remove('open'); });
+        });
+
+        // ── Toast ──
+        function showToast(msg, type) {
+            var t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + (type || 'success');
+            t.classList.add('show');
+            setTimeout(function(){ t.classList.remove('show'); }, 3500);
+        }
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>showToast('@TempData["SuccessMessage"]', 'success');</text>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>showToast('@TempData["ErrorMessage"]',   'error');</text>
+        }
+    </script>
+}
